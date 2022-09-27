@@ -1,0 +1,47 @@
+Time: 8:30am - 10:00am
+
+-Bet amount: 5 MES
+
+
+Price Action Checklist
+
+Entry 1:
+-3 or more of same colors in a row
+-One opposite color
+-Break of that opposite candle to the direction of the 3 bars prior
+-If after 4 candles, no break or dojis or pin bars, cancel the preparations of the trade. If dojis or pin bars appear wait for two more candles from the latest doji or pin-bar
+
+
+Entry 2:
+-2 Solid colors of open or after one doji or pinbar in direction if solid colors
+-One opposite color
+-Break of that opposite candle to the direction of the 3 bars prior
+-If after 4 candles, no break or dojis or pin bars, cancel the preparations of the trade. If dojis or pin bars appear wait for two more candles from the latest doji or pin-bar
+
+
+Entry 3:
+-1 Solid color of open or after one doji or pinbar in direction if solid colors
+-dojis, or pin-bars of opposite
+-Break of the dojis or pin-bars to the direction of the 3 bars prior
+-If after 4 candles, no break or dojis cancel the preparations of the trade. If dojis or pin-bars appear wait for two more candles from the latest doji or pin-bars
+
+
+Entry 4:
+Any of these entries on the 1 min
+
+
+
+Exit:
+
+Exit 1: 
+-Trade hits the stop loss placed one bar and a half (body) from the initial pullback bar we used to enter (stop loss of entry 3 is 75% the opposite end of the large bar)
+-1min Trade is below or above the pin bars
+
+Exit 2:
+-When pin-bar or doji opposite of the trade appears
+
+Exit 3:
+-Two opposite candles appear
+
+Exit 4:
+-Opposite color candle overtakes previous candle at the close
