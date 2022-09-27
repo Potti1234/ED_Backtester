@@ -1,0 +1,33 @@
+// Created By UCSGEARS
+// Based on Videos from youtube, by Rob Hoffman
+
+study("Rob Hoffman - Overlay Set", shorttitle = "RH - MAs", overlay = true)
+
+a = sma(close,3)
+b = sma(close,5)
+
+c = ema(close,18)
+d = ema(close,20)
+
+e = sma(close,50)
+f = sma(close,89)
+g = ema(close,144)
+h = sma(close,200)
+
+k = ema(close,35)
+r = rma(tr,35)
+ku = k + r*0.5
+kl = k - r*0.5
+
+plot(a, title = "Fast Speed Line", linewidth = 2, color = #0000FF)
+plot(b, title = "Slow Speed Line", linewidth = 2, color = fuchsia)
+plot(c, title = "Fast Primary Trend Line", linewidth = 3, color = #00FF00)
+plot(d, title = "Slow Primary Trend Line", linewidth = 3, color = #000000)
+plot(e, title = "Trend Line - 1", linewidth = 3, color = #0000FF, style = circles)
+plot(f, title = "Trend Line - 2", linewidth = 3, color = #20B2AA)
+plot(g, title = "Trend Line - 3", linewidth = 3, color = #FF4500)
+plot(h, title = "Trend Line - 4", linewidth = 3, color = fuchsia)
+
+plot(k, title = "No Trend Zone - Midline", linewidth = 2, color = #3CB371)
+plot(ku, title = "No Trend Zone - Upperline", linewidth = 2, color = #3CB371)
+plot(kl, title = "No Trend Zone - Lowerline", linewidth = 2, color = #3CB371)

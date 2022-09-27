@@ -1,0 +1,29 @@
+study(title="UCS_Rob Hoffman_Inventory Retracement Bar", shorttitle="UCS_RH_IRB", precision=2, overlay=true)
+
+z = input(45, title="Inventory Retracement Percentage %", maxval=100)
+
+// Candle Range
+a = abs(high - low)
+// Candle Body
+b = abs(close - open)
+// Percent to Decimal
+c = z/100
+
+// Range Verification 
+rv = b < c*a
+
+// Price Level for Retracement
+x = low + (c * a)
+y = high - (c * a)
+
+sl = rv == 1 and high > y and close < y and open < y 
+ss = rv == 1 and low < x and close > x and open > x 
+
+// Line Definition
+li = sl ? y : ss ? x : (x+y)/2
+
+// Plot Statement
+plotshape(sl, style=shape.triangledown, location=location.abovebar, color=red, title = "Long Bar", transp = 0)
+plotshape(ss, style=shape.triangleup, location=location.belowbar, color=green, title = "Short Bar", transp = 0)
+
+plot(li, style = line, color = blue, title = "Inventory Bar Retracement Price Line")
