@@ -1,10 +1,10 @@
 import pandas as pd
 
-from ED_Backtester.Event import SignalEvent
+from Event import SignalEvent
 
-from ED_Backtester.Statistics.Performance import create_sharpe_ratio, create_drawdowns, create_cagr, \
+from Statistics.Performance import create_sharpe_ratio, create_drawdowns, create_cagr, \
     create_sortino_ratio
-from ED_Backtester.Portfolio.portfolio import Portfolio
+from Portfolio.Portfolio import Portfolio
 
 
 class NaivePortfolio(Portfolio):
@@ -126,14 +126,14 @@ class NaivePortfolio(Portfolio):
                 market_value = self.current_positions[s][0] * bars[s][0][5]
                 # Calculate real value
                 advanced_stats = self.bars.universe.return_advanced_symbol_stats(s)
+                if advanced_stats[0] == "Forex":
+                    checkpair_price = advanced_stats[5][1]
+                    if checkpair_price == 0:
+                        checkpair_price = self.bars.get_latest_bars(advanced_stats[5][0], self.timeframe_list[0])[0][5]
+                        if advanced_stats[5][2] is True:
+                            checkpair_price = 1 / checkpair_price
 
-                checkpair_price = advanced_stats[5][1]
-                if checkpair_price == 0:
-                    checkpair_price = self.bars.get_latest_bars(advanced_stats[5][0], self.timeframe_list[0])[0][5]
-                    if advanced_stats[5][2] is True:
-                        checkpair_price = 1 / checkpair_price
-
-                market_value = market_value / checkpair_price
+                    market_value = market_value / checkpair_price
                 dh[s] = market_value
                 dh['total'] += market_value
 
@@ -259,6 +259,10 @@ class NaivePortfolio(Portfolio):
             fill_dir = 1
         if fill.direction == 'SELL':
             fill_dir = -1
+        if fill.direction == "Change":
+            self.Trades[fill.symbol][fill.timeframe][-1][4] = fill.stop_loss
+            self.Trades[fill.symbol][fill.timeframe][-1][5] = fill.take_profit
+            return
 
         # Update holdings list with new quantities
         latest_bar = self.bars.get_latest_bars(fill.symbol, fill.timeframe)
@@ -280,13 +284,14 @@ class NaivePortfolio(Portfolio):
         # Calculate real value in account currency
         advanced_stats = self.bars.universe.return_advanced_symbol_stats(fill.symbol)
 
-        checkpair_price = advanced_stats[5][1]
-        if checkpair_price == 0:
-            checkpair_price = self.bars.get_latest_bars(advanced_stats[5][0], fill.timeframe)[0][5]
-            if advanced_stats[5][2] is True:
-                checkpair_price = 1 / checkpair_price
+        if advanced_stats[0] == "Forex":
+            checkpair_price = advanced_stats[5][1]
+            if checkpair_price == 0:
+                checkpair_price = self.bars.get_latest_bars(advanced_stats[5][0], fill.timeframe)[0][5]
+                if advanced_stats[5][2] is True:
+                    checkpair_price = 1 / checkpair_price
 
-        cost = cost / checkpair_price
+            cost = cost / checkpair_price
         # update holdings with cost
         self.current_holdings[fill.symbol] += cost
         self.current_holdings['commission'] += fill.commission

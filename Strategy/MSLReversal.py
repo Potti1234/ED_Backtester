@@ -1,7 +1,7 @@
-from ED_Backtester.Event import SignalEvent
-from ED_Backtester.Strategy.Strategy import Strategy
+from Event import SignalEvent
+from Strategy.Strategy import Strategy
 
-from ED_Backtester.Indicator.Main_Indicator import MainIndicator
+from Indicator.Main_Indicator import MainIndicator
 
 
 class MSLReversal(Strategy):
@@ -84,9 +84,18 @@ class MSLReversal(Strategy):
                         # if self.in_MSL[s] < 48:
                         #    return
 
+                        # Check for trailing#
+                        """
+                        if self.entry_MSL[s] != self.MSL[3]:
+                            signal = SignalEvent(bars[0][0], self.bars.timeframe_list[0], bars[0][1], 'SHORT',
+                                                 self.MSL[3], None)
+                            self.events.put(signal)
+                            self.entry_MSL[s] = self.MSL[3]
+                        """
+
                         # Check for long orders
                         # Higher Low Higher High
-                        if self.TrendFilter > 20000:
+                        if self.TrendFilter == 300000:
                             zone_low = self.MSL[1] - 2 * self.ATR[s]
                             if self.in_zone[s][1] != self.MSL[1]:
                                 self.in_zone[s] = [0, self.MSL[1]]

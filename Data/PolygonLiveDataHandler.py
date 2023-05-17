@@ -2,8 +2,9 @@ import os, os.path
 import pandas as pd
 import requests,json
 
-from ED_Backtester.Event import MarketEvent
-from ED_Backtester.Data.Data import DataHandler
+from Event import MarketEvent
+from Data.Data import DataHandler
+
 
 class PolygonLiveDataHandler(DataHandler):
     """

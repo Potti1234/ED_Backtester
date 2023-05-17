@@ -1,7 +1,7 @@
 import datetime as dt
 
-from ED_Backtester.Scanner.Scanner import Scanner
-from ED_Backtester.Scanner.ScannerBasics import Is_PreMarket, get_Float, check_History_of_Running
+from Scanner.Scanner import Scanner
+from Scanner.ScannerBasics import Is_PreMarket, get_Float, check_History_of_Running
 
 
 class PMRallyScanner(Scanner):

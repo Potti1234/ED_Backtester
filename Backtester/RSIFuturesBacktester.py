@@ -1,12 +1,12 @@
-from ED_Backtester.Universe.Dynamic_Universe import DynamicUniverse
-from ED_Backtester.Data.HistoricCSVDataHandler1min import HistoricCSVDataHandler
-from ED_Backtester.Strategy.RSIFutures import RSIFutures
-from ED_Backtester.Portfolio.NaivePortfolio import NaivePortfolio
-from ED_Backtester.RiskManagement.FixedMoneyRiskManagement import FixedMoneyRiskManagement
-from ED_Backtester.Commission.IB_Commission import IB_Commission
-from ED_Backtester.Execution.SimulatedExecutionHandler import SimulatedExecutionHandler
+from Universe.DynamicUniverse import DynamicUniverse
+from Data.HistoricCSVDataHandler1min import HistoricCSVDataHandler1min
+from Strategy.RSIFutures import RSIFutures
+from Portfolio.NaivePortfolio import NaivePortfolio
+from RiskManagement.FixedMoneyRiskManagement import FixedMoneyRiskManagement
+from Commission.IB_Commission import IB_Commission
+from Execution.SimulatedExecutionHandler import SimulatedExecutionHandler
 
-from ED_Backtester.Backtester.Event_Driven_Backtester import Event_Driven_Backtester
+from Backtester.Event_Driven_Backtester import Event_Driven_Backtester
 
 import queue
 import time
@@ -31,7 +31,7 @@ def main():
     events = queue.Queue()
 
     universe = DynamicUniverse(symbol_list)
-    bars = HistoricCSVDataHandler(events, csv_dir, universe, timeframe_list, start_date, end_date)
+    bars = HistoricCSVDataHandler1min(events, csv_dir, universe, timeframe_list, start_date, end_date)
     strategy = RSIFutures(events, bars)
     risk = FixedMoneyRiskManagement(bars, 1000)
     port = NaivePortfolio(bars, events, start_date, risk)

@@ -1,10 +1,10 @@
 import pandas as pd
 
-from ED_Backtester.Event import MarketEvent
-from ED_Backtester.Data.Data import DataHandler
+from Event import MarketEvent
+from Data.Data import DataHandler
 
 
-class HistoricCSVDataHandler(DataHandler):
+class HistoricCSVDataHandler1min(DataHandler):
     """
     HistoricCSVDataHandler is designed to read CSV files for
     each requested symbol from disk and provide an interface

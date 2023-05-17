@@ -1,14 +1,15 @@
 import pandas as pd
+import numpy as np
 from datetime import datetime
 import time
 from decimal import Decimal
 import matplotlib.pyplot as plt
 
-from ED_Backtester.Statistics.Entry_Chart_Bokeh import EntryChart
-from ED_Backtester.Statistics.Tearsheet_quantstats import Tearsheet_quantstats
+from Statistics.EntryChartBokeh import EntryChartBokeh
+from Statistics.Tearsheet_quantstats import Tearsheet_quantstats
 
-import ED_Backtester.Statistics.Indicator_lists as Indicator_lists
-import ED_Backtester.Symbol_lists as Symbol_lists
+import Statistics.Indicator_lists as Indicator_lists
+import Symbol_lists as Symbol_lists
 
 
 def reformat_data(rf_data, reformat_data_sec, base_data_sec):
@@ -29,18 +30,27 @@ def main():
                       ["RSI", "Line_chart_plus_lines", "Sub_Plot", "RSI", [50, 50]],
                       ["Stochastic", "Two_Line_chart", "Sub_Plot", "Stochastic"],
                       ["MACD", "Two_Line_chart", "Sub_Plot", "MACD"]]
-    indicator_list = Indicator_lists.return_MSLReversalIndicators()
+    # indicator_list = Indicator_lists.return_MSLReversalIndicators()
+    indicator_list = Indicator_lists.return_MSLBreakoutIndicators()
     start_date = "2019/01/01 00:00:00"
     start_date = time.mktime(datetime.strptime(start_date, '%Y/%m/%d %H:%M:%S').timetuple())
     end_date = "2023/01/01 00:00:00"
     end_date = time.mktime(datetime.strptime(end_date, '%Y/%m/%d %H:%M:%S').timetuple())
-    # plot_entry_chart("MSLReversalReversed6TimesTP", "EURUSD", ["15minute", "4hour"], 2, "MSLReversalChart15minReversed2", start_date, end_date, indicator_list, 900)
+    #plot_entry_chart("MSLTest", "EURUSD", ["15minute", "4hour"], 2, "MSLTestSLTP", start_date, end_date, indicator_list, 900, plot_slpt=True)
     # for symbol in symbol_list:
     #     plot_entry_chart("MSLReversalReversed", symbol, ["15minute", "4hour"], 2, "MSLReversalChart15minReversed2", start_date, end_date, indicator_list, 900)
-    plot_tearsheet("MSLReversalReversed6TimesTP", "Tearsheet+2022")
+    plot_tearsheet("MSLBreakout", "TearsheetAllTrades")
     # plot_single_trades("MSL", "EURUSD", ["15minute", "4hour"], 0, indicator_list, 14400, prev_bars=100, after_bars=10)
-    #plot_trades_analysis("MSLReversalReversed6TimesTP", symbol_list, "15minute", indicator_list,
-     #                    "RRRPercentdifferenceTP", 0.1)
+    parameters = [[["RRRPercentdifferenceTP", 0.1]], [["RRRdifferenceTP", 0.1]], [["Profit", 0.5]], [["RRR", 0.5]],
+                  [["stoplosssize", 10]], [["Trend", 1]], [["commission", 10]]]
+    #parameters = [[["Range_Filter25", 10]], [["Range_Filter50", 10]], [["Range_Filter75", 10]], [["Range_Filter100", 10]], [["Range_Filter200", 10]]]
+    #parameters = [[["Range_Filter200", 10], ["Direction", None]]]
+    tp_sl_optimize = True
+    #for p in parameters:
+     #   plot_trades_analysis("MSLBreakout", symbol_list, "15minute", indicator_list, p, tp_sl_optimize, tp_sl_optimize)
+      #  tp_sl_optimize = False
+    #plot_entry_chart("MSLBreakout", "EURUSD", ["15minute", "4hour"], 0, "MSLBreakout", start_date, end_date, indicator_list,
+     #                900, plot_slpt=True)
 
 
 def load_data(strategy_name, symbol, timeframe, indicator_list):
@@ -144,7 +154,7 @@ def plot_entry_chart(strategy_name, symbol, timeframe_list, drop_candles, title,
 
         full_df.append(df)
 
-    statistics = EntryChart(full_df, symbol, title=title, plot_sltp=plot_slpt)
+    statistics = EntryChartBokeh(full_df, symbol, title=title, plot_sltp=plot_slpt)
     statistics.plot_results(statistics_filename)
 
 
@@ -181,49 +191,99 @@ def plot_single_trades(strategy_name, symbol, timeframe, drop_candles, indicator
 
 def round_nearest(num, to):
     num, to = Decimal(str(num)), Decimal(str(to))
-    return float(round(num / to) * to)
+    try:
+        return float(round(num / to) * to)
+    except OverflowError:
+        return num
 
 
-def plot_tradestats_bar(dftrades, filename, round_value, variable, cummulative=False, descending=False):
+def plot_tradestats_bar(dftrades, filename, variable_list, cummulative=False, descending=False):
     dftrades_save = dftrades.copy()
-    # Round variable to plot
-    dftrades_save[variable] = dftrades_save[variable].apply(round_nearest, args=(round_value,))
+
+    # Unfinished Code to use more than one variable
+    # variable_list = [variable, round_value, cummulative, descending] 
+    # Save names of variables to groupby and round the values if necessary
+    variables = []
+    variable_name = ""
+    for variable in variable_list:
+        variables.append(variable[0])
+        variable_name += str(variable[0])
+        if variable[1] is not None:
+            dftrades_save[variable[0]] = dftrades_save[variable[0]].apply(round_nearest, args=(variable[1],))
+
     # Group variable and plot wins and losses of every group
     fig, ax = plt.subplots(figsize=(10, 4))
     if descending is True:
-        dfgb = dftrades_save.iloc[::-1].groupby([variable])
+        dfgb = dftrades_save.iloc[::-1].groupby(variables)
     else:
-        dfgb = dftrades_save.groupby([variable])
-    cumwin = 0
-    cumloss = 0
+        dfgb = dftrades_save.groupby(variables)
+    # Initialise stats variables
+    win = {}
+    loss = {}
+    profit = {}
+    # Initialise cummulative variables
+    cumwin = {}
+    cumloss = {}
+    cumprofit = {}
     for key, grp in dfgb:
+        variable_value = ""
+        param = grp.first_valid_index()
+        # Combine current key values to one string if more than one variable is used
+        if len(variable_list) != 1:
+            for i in key:
+                variable_value += str(i)
+            param = variable_value
+        # Calculate wins and losses of current group
         try:
-            win = grp["WL"].value_counts()["Win"]
+            win[param] = grp["WL"].value_counts()["Win"]
         except KeyError:
-            win = 0
+            win[param] = 0
         try:
-            loss = grp["WL"].value_counts()["Loss"]
+            loss[param] = grp["WL"].value_counts()["Loss"]
         except KeyError:
-            loss = 0
+            loss[param] = 0
+        # Calculate cumulative wins and losses
         if cummulative is True:
-            cumwin += win
-            cumloss += loss
-            win = cumwin
-            loss = cumloss
-        ax.bar(grp[variable][grp.first_valid_index()], win, width=round_value / 2, color="green", align="edge")
-        ax.bar(grp[variable][grp.first_valid_index()], loss, width=-round_value / 2, color="red", align="edge")
+            cumwin[param] += win[param]
+            cumloss[param] += loss[param]
+            win[param] = cumwin[param]
+            loss[param] = cumloss[param]
+        # Plot win and loss bars
+        ax.bar(grp[variables[0]][grp.first_valid_index()], win[param], width=variable_list[0][1] / 2, color="green",
+               align="edge")
+        ax.bar(grp[variables[0]][grp.first_valid_index()], loss[param], width=-variable_list[0][1] / 2, color="red",
+               align="edge")
 
     plt.savefig("D:\\AktienDaten\\Statistics\\{} WinnerLoser.png".format(filename))
 
     fig, ax = plt.subplots(figsize=(10, 4))
-    cumprofit = 0
     for key, grp in dfgb:
-        profit = grp["Profit"].sum()
+        variable_value = ""
+        param = grp.first_valid_index()
+        if len(variable_list) != 1:
+            for i in key:
+                variable_value += str(i)
+            param = variable_value
+        profit[param] = grp["Profit"].sum()
         if cummulative is True:
-            cumprofit += profit
-            profit = cumprofit
-        ax.bar(grp[variable][grp.first_valid_index()], profit, width=round_value, color="green")
+            cumprofit[param] += profit[param]
+            profit[param] = cumprofit[param]
+        ax.bar(grp[variables[0]][grp.first_valid_index()], profit[param], width=variable_list[0][1], color="green")
     plt.savefig("D:\\AktienDaten\\Statistics\\{} Profit.png".format(filename))
+
+    for key, grp in dfgb:
+        variable_value = ""
+        param = grp.first_valid_index()
+        if len(variable_list) != 1:
+            for i in key:
+                variable_value += str(i)
+            param = variable_value
+
+        with open("D:\\AktienDaten\\Statistics\\{} {}.txt".format(filename, variable_name), 'a') as f:
+            f.write('{} {}W {}L {}% {}Profit\n'.format(param, win[param], loss[param],
+                                                       round(win[param] / (win[param] + loss[param]), 2),
+                                                       round(profit[param]), 2))
+            f.close()
 
 
 def plot_tradestats_scatter(dftrades, filename, variable):
@@ -247,10 +307,14 @@ def save_stats(trades, symbol, statistics_filename):
         f.close()
 
 
-def plot_trades_analysis(strategy_name, symbol_list, timeframe, indicator_list, variable, round_value):
+def plot_trades_analysis(strategy_name, symbol_list, timeframe, indicator_list, variable_list, tp_optimization=True,
+                         sl_optimization=True):
     alltrades = pd.DataFrame()
     # Give Name of value to plot on x axis and digits to round plot winrate trades profit
     statistics_filename = "D:\\AktienDaten\\Statistics\\{}\\".format(strategy_name)
+    variable_name = ""
+    for variable in variable_list:
+        variable_name += str(variable[0])
     for symbol in symbol_list:
         dftrades = trade_analysis(strategy_name, symbol, timeframe, indicator_list)
         # Filter commissions over 100
@@ -261,21 +325,28 @@ def plot_trades_analysis(strategy_name, symbol_list, timeframe, indicator_list, 
 
         alltrades = alltrades.append(dftrades, ignore_index=True)
 
-        plot_tradestats_bar(dftrades, "{}\\{}\\{}".format(strategy_name, symbol, variable), round_value, variable)
-        plot_tradestats_scatter(dftrades, "{}\\{}\\{}".format(strategy_name, symbol, variable), variable)
+        plot_tradestats_bar(dftrades, "{}\\{}\\{}".format(strategy_name, symbol, variable_name), variable_list)
+        for variable in variable_list:
+            plot_tradestats_scatter(dftrades, "{}\\{}\\{}".format(strategy_name, symbol, variable[0]), variable[0])
 
     # Calculate Cummulative Profit to use for the modelling of a profit graph
     alltrades["CumProfit"] = alltrades["Profit"].cumsum()
     alltrades["CommissionCumProfit"] = alltrades["CommissionProfit"].cumsum()
     # print(sum(alltrades["CommissionProfit"]))
     # print(sum(alltrades["Profit"]))
-    # Print profit of best Price
-    best_price_profits(alltrades, "RRRPercentdifferenceTP", alltrades["RRR"], statistics_filename=statistics_filename)
-    # best_price_profits(alltrades, "RRRPercentdifferenceSL", alltrades["RRR"], 1)
+
+    # Optimize TP and sl placement if activated
+    if tp_optimization is True:
+        best_price_profits(alltrades, "RRRPercentdifferenceTP", alltrades["RRR"],
+                           statistics_filename=statistics_filename)
+    if sl_optimization is True:
+        best_price_profits(alltrades, "RRRPercentdifferenceSL", alltrades["RRR"], 1,
+                           statistics_filename=statistics_filename)
 
     save_stats(alltrades, "All   ", statistics_filename)
-    plot_tradestats_bar(alltrades, "{}\\{}".format(strategy_name, variable), round_value, variable)
-    plot_tradestats_scatter(alltrades, "{}\\{}".format(strategy_name, variable), variable)
+    plot_tradestats_bar(alltrades, "{}\\{}".format(strategy_name, variable_name), variable_list)
+    for variable in variable_list:
+        plot_tradestats_scatter(alltrades, "{}\\{}".format(strategy_name, variable[0]), variable[0])
 
 
 def trade_analysis(strategy_name, symbol, timeframe, indicator_list):
@@ -308,6 +379,10 @@ def trade_analysis(strategy_name, symbol, timeframe, indicator_list):
                 else:
                     save_row["WL"] = "Win"
             dftrades = dftrades.append(save_row)
+
+    # Check if it is a Buy or Sell trade
+    dftrades.loc[dftrades['size'] > 0, 'Direction'] = "Buy"
+    dftrades.loc[dftrades['size'] < 0, 'Direction'] = "Sell"
 
     dftrades["opentime"] = dftrades["datetimeclose"] - dftrades["datetime"]
     # TP = 0 Use Exitprice
@@ -350,25 +425,41 @@ def best_price_profits(alltrades, mode="MaxRRRTP", factor=1, commission_factor=N
     results = []
     for i in maxrrr:
         alltrades_copy = alltrades.copy()
+        # Calculate new profit and loss
         alltrades_copy.loc[alltrades_copy[mode] < i, 'Profit'] = -1
         alltrades_copy.loc[alltrades_copy[mode] >= i, 'Profit'] = factor * i
+        # Adjust commissions
         if commission_factor is not None:
             alltrades_copy["commission"] = alltrades_copy["commission"] * i / commission_factor
             alltrades_copy = alltrades_copy.loc[alltrades_copy['commission'] < commission_max]
+        # Calculate commission profits
         alltrades_copy["CommissionProfit"] = alltrades_copy["Profit"] - alltrades_copy["commission"] * 2 / 1000
+        # Filter out infinity values
+        alltrades_copy = alltrades_copy.loc[alltrades_copy[mode] != np.inf]
         # Calculate Cummulative Profit to use for the modelling of a profit graph
         alltrades_copy["CumProfit"] = alltrades_copy["Profit"].cumsum()
         alltrades_copy["CommissionCumProfit"] = alltrades_copy["CommissionProfit"].cumsum()
-        results.append([i, round(sum(alltrades_copy["Profit"]), 2), round(sum(alltrades_copy["CommissionProfit"]), 2)])
-        print(i, sum(alltrades_copy["CommissionProfit"]))
-        print(i, sum(alltrades_copy["Profit"]))
+        # Calculate numbers of winners and losers
+        cut = pd.cut(alltrades_copy.Profit, [-np.inf, 0, np.inf], labels=['loss', 'win'])
+        wl = pd.value_counts(cut, sort=False).rename_axis('wl').reset_index(name='count')
+        wl = wl.values
+        win = wl[1][1]
+        loss = wl[0][1]
+        winrate = 0
+        if win+loss != 0:
+            winrate = round(win / (win + loss), 2)
+        # Save Results
+        results.append([i, round(sum(alltrades_copy["Profit"]), 2), round(sum(alltrades_copy["CommissionProfit"]), 2),
+                        win, loss, winrate])
+        # Print out the results
+        print(i, sum(alltrades_copy["CommissionProfit"]), sum(alltrades_copy["Profit"]))
     # Check if data should be saved
     if statistics_filename is None:
         return
     # Save the data in a txt file
     with open(statistics_filename + mode + '.txt', 'a') as f:
         for result in results:
-            f.write('{} {} Profit {} CommissionProfit\n'.format(result[0], result[1], result[2]))
+            f.write('{} {} Profit {} CommissionProfit {} Wins {} Losses {} Winrate\n'.format(*result))
         f.close()
 
 

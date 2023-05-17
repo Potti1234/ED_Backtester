@@ -1,10 +1,10 @@
 import datetime
 
-from ED_Backtester.Event import FillEvent
-from ED_Backtester.Execution.Execution import ExecutionHandler
+from Event import FillEvent
+from Execution.Execution import Execution
 
 
-class SimulatedExecutionHandler(ExecutionHandler):
+class SimulatedExecutionHandler(Execution):
     """
     The simulated execution handler simply converts all order
     objects into their equivalent fill objects automatically

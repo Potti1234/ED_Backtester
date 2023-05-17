@@ -1,7 +1,7 @@
-from ED_Backtester.Event import SignalEvent
-from ED_Backtester.Strategy.Strategy import Strategy
+from Event import SignalEvent
+from Strategy.Strategy import Strategy
 
-from ED_Backtester.Indicator.Main_Indicator import MainIndicator
+from Indicator.Main_Indicator import MainIndicator
 
 
 class MSLBreakout(Strategy):
@@ -19,14 +19,14 @@ class MSLBreakout(Strategy):
         """
         self.bars = bars
         self.events = events
-        self.indicators = MainIndicator(events, bars, [["MajorSwingLevels", self.bars.timeframe_list[0], 5, True,
-                                                        [12, 26, 9]],
-                                                       ["MajorSwingLevels", self.bars.timeframe_list[1], 5, True,
-                                                        [12, 26, 9]],
-                                                       ["TrendFilter", self.bars.timeframe_list[0], 5, "MSL", True,
-                                                        [12, 26, 9]],
-                                                       ["TrendFilter", self.bars.timeframe_list[1], 5, "MSL", True,
-                                                        [12, 26, 9]],
+        self.indicators = MainIndicator(events, bars, [["MajorSwingLevels", self.bars.timeframe_list[0], 5, False,
+                                                        [12, 26, 9], False, 14],
+                                                       ["MajorSwingLevels", self.bars.timeframe_list[1], 5, False,
+                                                        [12, 26, 9], False, 14],
+                                                       ["TrendFilter", self.bars.timeframe_list[0], 5, "MSL", False,
+                                                        [12, 26, 9], False, 14],
+                                                       ["TrendFilter", self.bars.timeframe_list[1], 5, "MSL", False,
+                                                        [12, 26, 9], False, 14],
                                                        ["ATR", self.bars.timeframe_list[0], 14],
                                                        ["MACD", self.bars.timeframe_list[0], 12, 26, 9]])
         self.MSL15m = [0, 0, 0, 0]
@@ -85,6 +85,7 @@ class MSLBreakout(Strategy):
                         # New MSL Level
                         if self.in_zone[s][1] != self.MSL4h[1]:
                             self.in_zone[s] = [0, self.MSL4h[1]]
+                        """
                         # Close trade if 15 min MSL break
                         if self.open_trade[s] > 0:
                             if self.TrendFilter15m < 0 and self.last_tf[s] > 0:
@@ -96,6 +97,7 @@ class MSLBreakout(Strategy):
                                 signal = SignalEvent(bars[0][0], self.bars.timeframe_list[0], bars[0][1], 'EXIT')
                                 self.events.put(signal)
                                 self.open_trade[s] = 0
+                        """
 
                         # Check for long orders
                         # Higher Low Higher High
@@ -104,17 +106,15 @@ class MSLBreakout(Strategy):
                             if self.in_zone[s][0] > 0:
                                 if self.TrendFilter15m > 0 and self.last_tf[s] < 0:
                                     stop_loss = self.MSL15m[-2]
-                                    #take_profit = self.MSL4h[-1]
+                                    take_profit = bars[0][4] + (abs(bars[0][4] - self.MSL4h[-1]) * 0.8)
 
                                     retracement = (self.MSL4h[3] - bars[0][5]) / (self.MSL4h[3] - self.MSL4h[2])
                                     breakout = (self.MSL4h[3] - self.MSL4h[2]) / (self.MSL4h[1] - self.MSL4h[2])
 
-                                    self.variables[s].append([retracement, breakout, self.TrendFilter4h])
-
-                                    self.variables[s].append([0, 0, 0])
+                                    variables = [retracement, breakout, self.TrendFilter4h]
 
                                     signal = SignalEvent(bars[0][0], self.bars.timeframe_list[0], bars[0][1], 'LONG',
-                                                         stop_loss)#, take_profit)
+                                                         stop_loss, take_profit, parameters=variables)
                                     self.events.put(signal)
                                     self.entry_MSL[s] = self.MSL4h[3]
 
@@ -129,17 +129,15 @@ class MSLBreakout(Strategy):
                             if self.in_zone[s][0] > 0:
                                 if self.TrendFilter15m < 0 and self.last_tf[s] > 0:
                                     stop_loss = self.MSL15m[-2]
-                                    #take_profit = self.MSL4h[-1]
+                                    take_profit = bars[0][4] - (abs(bars[0][4] - self.MSL4h[-1]) * 0.8)
 
                                     retracement = (bars[0][5] - self.MSL4h[3]) / (self.MSL4h[2] - self.MSL4h[3])
                                     breakout = (self.MSL4h[2] - self.MSL4h[3]) / (self.MSL4h[2] - self.MSL4h[1])
 
-                                    self.variables[s].append([retracement, breakout, self.TrendFilter4h])
-
-                                    self.variables[s].append([0, 0, 0])
+                                    variables = [retracement, breakout, self.TrendFilter4h]
 
                                     signal = SignalEvent(bars[0][0], self.bars.timeframe_list[0], bars[0][1], 'SHORT',
-                                                         stop_loss)#, take_profit)
+                                                         stop_loss, take_profit, parameters=variables)
                                     self.events.put(signal)
                                     self.entry_MSL[s] = self.MSL4h[3]
 

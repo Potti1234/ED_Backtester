@@ -2,11 +2,11 @@ import requests
 import json
 import bs4 as bs
 
-from HistoricDataLoader import get_historical_data, get_date_N_days_ago
+from HistoricDataLoader import get_historical_data_polygon, get_date_n_days_ago
 
 
 def check_History_of_Running(ticker, key):
-    df = get_historical_data(ticker, 1, "day", get_date_N_days_ago(730), get_date_N_days_ago(0), key)
+    df = get_historical_data_polygon(ticker, 1, "day", get_date_n_days_ago(730), get_date_n_days_ago(0), key)
     Open = df["Open"].values()
     Close = df["Close"].values()
 

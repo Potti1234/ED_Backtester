@@ -1,19 +1,20 @@
-from ED_Backtester.Indicator.ATR import ATR
-from ED_Backtester.Indicator.CPR import CPR
-from ED_Backtester.Indicator.EMA import EMA
-from ED_Backtester.Indicator.EngulfingCandle import EngulfingCandle
-from ED_Backtester.Indicator.Hidden_Divergence import Hidden_Divergence
-from ED_Backtester.Indicator.HighestLowest import HighestLowest
-from ED_Backtester.Indicator.MACD import MACD
-from ED_Backtester.Indicator.MajorSwingLevels import MajorSwingLevels
-from ED_Backtester.Indicator.Pinbar import Pinbar
-from ED_Backtester.Indicator.PinbarInsideBar import PinbarInsideBar
-from ED_Backtester.Indicator.RSI import RSI
-from ED_Backtester.Indicator.SMA import SMA
-from ED_Backtester.Indicator.SR import SupportandResistance
-from ED_Backtester.Indicator.Stochastic import Stochastic
-from ED_Backtester.Indicator.TrendFilter import TrendFilter
-from ED_Backtester.Indicator.VWAP import VWAP
+from Indicator.ATR import ATR
+from Indicator.CPR import CPR
+from Indicator.EMA import EMA
+from Indicator.EngulfingCandle import EngulfingCandle
+from Indicator.Hidden_Divergence import Hidden_Divergence
+from Indicator.HighestLowest import HighestLowest
+from Indicator.MACD import MACD
+from Indicator.MajorSwingLevels import MajorSwingLevels
+from Indicator.Pinbar import Pinbar
+from Indicator.PinbarInsideBar import PinbarInsideBar
+from Indicator.RSI import RSI
+from Indicator.SMA import SMA
+from Indicator.SR import SupportandResistance
+from Indicator.Stochastic import Stochastic
+from Indicator.TrendFilter import TrendFilter
+from Indicator.VWAP import VWAP
+from Indicator.Range_filter import Range_filter
 
 
 def create_indicator(self, indicator):
@@ -99,3 +100,8 @@ def create_indicator(self, indicator):
 
         for symbol in self.bars.universe.symbol_list:
             return CPR(indicator[1], symbol, indicator[2])
+    elif indicator[0] == "Range_Filter":
+        self.set_save_periods(indicator[2], Close=True)
+
+        for symbol in self.bars.universe.symbol_list:
+            return Range_filter(indicator[1], symbol, indicator[2], indicator[3], indicator[4])

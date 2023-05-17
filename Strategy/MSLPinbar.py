@@ -1,7 +1,7 @@
-from ED_Backtester.Event import SignalEvent
-from ED_Backtester.Strategy.Strategy import Strategy
+from Event import SignalEvent
+from Strategy.Strategy import Strategy
 
-from ED_Backtester.Indicator.Main_Indicator import MainIndicator
+from Indicator.Main_Indicator import MainIndicator
 
 
 class MSLPinbar(Strategy):

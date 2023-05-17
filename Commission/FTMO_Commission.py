@@ -1,4 +1,4 @@
-from ED_Backtester.Commission.Commission import Commission
+from Commission.Commission import Commission
 
 
 class FTMO_Commission(Commission):

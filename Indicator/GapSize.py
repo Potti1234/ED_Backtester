@@ -1,4 +1,4 @@
-from ED_Backtester.Indicator.Indicator import Indicator
+from Indicator.Indicator import Indicator
 from is_premarket import is_premarket
 
 

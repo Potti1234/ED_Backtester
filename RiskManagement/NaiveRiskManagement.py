@@ -1,6 +1,6 @@
-from ED_Backtester.RiskManagement.RiskManagement import RiskManagement
+from RiskManagement.RiskManagement import RiskManagement
 
-from ED_Backtester.Event import OrderEvent
+from Event import OrderEvent
 
 from math import floor
 
@@ -15,7 +15,7 @@ class NaiveRiskManagement(RiskManagement):
     def __init__(self, bars):
         self.bars = bars
 
-    def generate_order(self, port, signal, stop_loss=None, take_profit=None):
+    def generate_order(self, port, signal, stop_loss=None, take_profit=None, parameters=None):
         """
         Simply transacts an OrderEvent object as a constant quantity
         sizing of the signal object, without risk management or
@@ -36,6 +36,11 @@ class NaiveRiskManagement(RiskManagement):
         mkt_quantity = floor(100)
         cur_quantity = port.current_positions[symbol]
         order_type = 'MKT'
+
+        if direction == 'Change':
+            order = OrderEvent(symbol, timeframe, "MKT", 0, 'Change', stop_loss, take_profit, "Change",
+                               parameters=parameters)
+            return order
 
         if stop_loss == current_price:
             return

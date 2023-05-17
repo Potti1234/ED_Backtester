@@ -1,5 +1,5 @@
 import quantstats as qs
-from ED_Backtester.Statistics.statistics import Statistics
+from Statistics.Statistics import Statistics
 import pandas as pd
 
 

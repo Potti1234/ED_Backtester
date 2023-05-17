@@ -1,6 +1,6 @@
-from ED_Backtester.Indicator.Indicator import Indicator
-from ED_Backtester.Indicator.MACD import MACD
-from ED_Backtester.Indicator.ATR import ATR
+from Indicator.Indicator import Indicator
+from Indicator.MACD import MACD
+from Indicator.ATR import ATR
 
 
 class MajorSwingLevels(Indicator):
@@ -71,9 +71,9 @@ class MajorSwingLevels(Indicator):
             if self.macd_value[0] - self.macd_value[1] >= 0:
                 swing_high = current_max
 
-        if self.High_Low == "High" and close[-1] + self.atr_value > self.indicator_values[-1]:
+        if self.High_Low == "High" and close[-1] - self.atr_value > self.indicator_values[-1]:
             self.broke_High_Low[0] = True
-        elif self.High_Low == "Low" and close[-1] - self.atr_value < self.indicator_values[-1]:
+        elif self.High_Low == "Low" and close[-1] + self.atr_value < self.indicator_values[-1]:
             self.broke_High_Low[1] = True
 
         if swing_low == swing_high:

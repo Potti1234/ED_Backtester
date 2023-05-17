@@ -1,5 +1,5 @@
-from ED_Backtester.Indicator.Indicator import Indicator
-from ED_Backtester.Indicator.Pinbar import Pinbar
+from Indicator.Indicator import Indicator
+from Indicator.Pinbar import Pinbar
 
 
 class PinbarInsideBar(Indicator):

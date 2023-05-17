@@ -1,6 +1,6 @@
-from ED_Backtester.RiskManagement.RiskManagement import RiskManagement
+from RiskManagement.RiskManagement import RiskManagement
 
-from ED_Backtester.Event import OrderEvent
+from Event import OrderEvent
 
 
 class FixedMoneyRiskManagement(RiskManagement):
@@ -29,6 +29,10 @@ class FixedMoneyRiskManagement(RiskManagement):
         timeframe = signal.timeframe
         direction = signal.signal_type
         # strength = signal.strength
+        if direction == 'Change':
+            order = OrderEvent(symbol, timeframe, "MKT", 0, 'Change', stop_loss, take_profit, "Change",
+                               parameters=parameters)
+            return order
 
         current_price = self.bars.get_latest_bars(symbol, timeframe, 1)[0][5]
 
@@ -63,19 +67,14 @@ class FixedMoneyRiskManagement(RiskManagement):
                     return
 
         if cur_quantity == 0:
-            # account currency first    risk * price / sl_pips * 10000
-            # account currency second   risk / sl_pips * 10000
-            # account currency not in symbol
-            # use second currency to build pair
-            # account currency first     risk * price / sl_pips * 10000
-            # account currency second    risk / price / sl_pips * 10000
-            # 10000 = 100 if JPY involved
             advanced_stats = self.bars.universe.return_advanced_symbol_stats(symbol)
-            checkpair_price = advanced_stats[5][1]
-            if checkpair_price == 0:
-                checkpair_price = self.bars.get_latest_bars(advanced_stats[5][0], timeframe, 1)[0][5]
-                if advanced_stats[5][2] is True:
-                    checkpair_price = 1 / checkpair_price
+            checkpair_price = 1
+            if advanced_stats[0] == "Forex":
+                checkpair_price = advanced_stats[5][1]
+                if checkpair_price == 0:
+                    checkpair_price = self.bars.get_latest_bars(advanced_stats[5][0], timeframe, 1)[0][5]
+                    if advanced_stats[5][2] is True:
+                        checkpair_price = 1 / checkpair_price
 
             sl_size = abs(current_price - stop_loss)
             pip_size = advanced_stats[4]

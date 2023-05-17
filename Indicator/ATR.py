@@ -1,5 +1,5 @@
-from ED_Backtester.Indicator.Indicator import Indicator
-from ED_Backtester.Indicator.SMA import SMA
+from Indicator.Indicator import Indicator
+from Indicator.SMA import SMA
 
 
 class ATR(Indicator):

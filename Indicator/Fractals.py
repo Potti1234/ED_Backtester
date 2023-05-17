@@ -1,4 +1,4 @@
-from ED_Backtester.Indicator.Indicator import Indicator
+from Indicator.Indicator import Indicator
 
 
 class Fractals(Indicator):
@@ -23,7 +23,7 @@ class Fractals(Indicator):
         self.period_middle = int(self.period / 2 + 0.5)
 
     def calculate_indicator(self, data, is_new_candle, is_last_candle):
-        if len(data[4]) < 1:
+        if len(data[2]) < self.period:
             return
         if is_last_candle is not True:
             return

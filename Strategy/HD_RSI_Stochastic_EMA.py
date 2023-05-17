@@ -1,7 +1,7 @@
-from ED_Backtester.Event import SignalEvent
-from ED_Backtester.Strategy.Strategy import Strategy
+from Event import SignalEvent
+from Strategy.Strategy import Strategy
 
-from ED_Backtester.Indicator.Main_Indicator import MainIndicator
+from Indicator.Main_Indicator import MainIndicator
 
 
 class HD_RSI_Stochastic_EMA(Strategy):
@@ -9,6 +9,9 @@ class HD_RSI_Stochastic_EMA(Strategy):
     This strategy checks if there is Hidden Divergence on the Price and RSI
     then enters if the Stochastic indicator gives a signal and the EMA agrees.
     """
+
+    def getIndicatorNames(self):
+        return ["Hidden Divergence", "RSI", "Stochastic", "EMA"]
 
     def __init__(self, events, bars):
         """

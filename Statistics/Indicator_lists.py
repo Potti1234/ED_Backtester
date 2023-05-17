@@ -23,3 +23,16 @@ def return_MSLBreakoutIndicators():
                       ["TrendFilter4H", "Line_chart", "Sub_Plot", "TrendFilter4H", "4hour", "blue"],
                       ["ATR15M", "Line_chart", "Sub_Plot", "ATR", "15minute", "blue"]]
     return indicator_list
+
+
+def return_MSLIndicators():
+    indicator_list = [["MajorSwingLevels4H", "Line_chart", "Main_Plot", "MajorSwingLevels", "4hour", "blue"],
+                      ["TrendFilter4H", "Line_chart", "Sub_Plot", "TrendFilter4H", "4hour", "blue"],
+                      ["ATR15M", "Line_chart", "Sub_Plot", "ATR", "15minute", "blue"],
+                      ["EMA200", "Line_chart", "Main_Plot", "EMA200", "15minute", "blue"],
+                      ["Range_Filter25", "Line_chart", "Sub_Plot", "Range_Filter25", "15minute", "blue"],
+                      ["Range_Filter50", "Line_chart", "Sub_Plot", "Range_Filter50", "15minute", "blue"],
+                      ["Range_Filter75", "Line_chart", "Sub_Plot", "Range_Filter75", "15minute", "blue"],
+                      ["Range_Filter100", "Line_chart", "Sub_Plot", "Range_Filter100", "15minute", "blue"],
+                      ["Range_Filter200", "Line_chart", "Sub_Plot", "Range_Filter200", "15minute", "blue"]]
+    return indicator_list

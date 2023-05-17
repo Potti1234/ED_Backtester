@@ -1,5 +1,5 @@
-from ED_Backtester.Indicator.Indicator import Indicator
-from ED_Backtester.Indicator.EMA import EMA
+from Indicator.Indicator import Indicator
+from Indicator.EMA import EMA
 
 
 class MACD(Indicator):

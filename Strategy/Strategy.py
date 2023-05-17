@@ -23,3 +23,10 @@ class Strategy(object):
         Provides the mechanisms to calculate the list of signals.
         """
         raise NotImplementedError("Should implement calculate_signals()")
+
+    @abstractmethod
+    def getIndicatorNames(self):
+        """
+        Return the names of all the used indicators, used for the statistics module
+        """
+        raise NotImplementedError("Should implement getIndicatorNames()")

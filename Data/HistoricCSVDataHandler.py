@@ -1,8 +1,8 @@
 import pandas as pd
 import math
 
-from ED_Backtester.Event import MarketEvent
-from ED_Backtester.Data.Data import DataHandler
+from Event import MarketEvent
+from Data.Data import DataHandler
 
 
 class HistoricCSVDataHandler(DataHandler):

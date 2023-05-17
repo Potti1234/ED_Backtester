@@ -1,6 +1,6 @@
-from ED_Backtester.RiskManagement.RiskManagement import RiskManagement
+from RiskManagement.RiskManagement import RiskManagement
 
-from ED_Backtester.Event import OrderEvent
+from Event import OrderEvent
 
 
 class PercentageRiskManagement(RiskManagement):
@@ -36,6 +36,11 @@ class PercentageRiskManagement(RiskManagement):
 
         cur_quantity = port.current_positions[symbol][0]
         order_type = 'MKT'
+
+        if direction == 'Change':
+            order = OrderEvent(symbol, timeframe, "MKT", 0, 'Change', stop_loss, take_profit, "Change",
+                               parameters=parameters)
+            return order
 
         if stop_loss == current_price:
             return

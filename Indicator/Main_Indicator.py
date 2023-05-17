@@ -1,4 +1,4 @@
-from ED_Backtester.Indicator.create_indicator import create_indicator
+from Indicator.create_indicator import create_indicator
 
 
 class MainIndicator:
