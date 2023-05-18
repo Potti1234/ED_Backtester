@@ -8,6 +8,7 @@ import inspect
 import importlib
 from collections import OrderedDict
 from Statistics.Main_Statistics import load_data
+from GUI.StatisticsWindow.VariableList import VariableList
 
 
 class StatisticsWindow(QWidget):
@@ -90,14 +91,19 @@ class StatisticsWindow(QWidget):
 
         for widget in self.statisticsParameters:
             self.statisticsLayout.removeWidget(widget)
+        self.statisticsParameters = []
 
         for param, value in parameters.items():
             if param == "df":
                 continue
-            widget = QLineEdit()
-            widget.setToolTip(param)
-            if value.default is not inspect.Parameter.empty and value.default is not None:
-                widget.setText(str(value.default))
+            elif param == "variable_list":
+                widget = VariableList("D:\\AktienDaten\\Statistics\\" + self.strategyComboBox.currentText() + "\\" +
+                                      self.symbolList.data[0] + "\\Trades.csv")
+            else:
+                widget = QLineEdit()
+                widget.setToolTip(param)
+                if value.default is not inspect.Parameter.empty and value.default is not None:
+                    widget.setText(str(value.default))
             self.statisticsParameters.append(widget)
             self.statisticsLayout.addWidget(widget)
 
@@ -112,11 +118,17 @@ class StatisticsWindow(QWidget):
     def save(self):
         # Add start, end date to load data
         # Get indicator list
-        for symbol in self.symbolList.get_selected_rows():
-            for timeframe in self.timeframeList.get_selected_rows():
+        for symbol in self.symbolList.getSelectedRows():
+            for timeframe in self.timeframeList.getSelectedRows():
                 params = (load_data(self.strategyComboBox.currentText(), symbol, timeframe, []),)
                 for widget in self.statisticsParameters:
-                    params = params + (widget.text(),)
+                    if isinstance(widget, QLineEdit):
+                        params = params + (widget.text(),)
+                    elif isinstance(widget, VariableList):
+                        variableList = [[a, b] for a, b in zip(widget.getSelectedRows(1, 0), widget.getSelectedRows(1, 2))]
+                        params = params + (variableList,)
+                    else:
+                        print("Data of " + str(type(widget)) + " can not be read")
 
                 mymodule = importlib.import_module("Statistics." + self.statisticsComboBox.currentText())
                 classObject = getattr(mymodule, self.statisticsComboBox.currentText())

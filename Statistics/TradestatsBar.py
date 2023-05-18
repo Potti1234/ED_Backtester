@@ -1,7 +1,6 @@
 from Statistics.Main_Statistics import round_nearest
 from Statistics.Statistics import Statistics
 import matplotlib.pyplot as plt
-import ast
 
 
 class TradestatsBar(Statistics):
@@ -9,10 +8,7 @@ class TradestatsBar(Statistics):
     Displays a BarChart for Tradestats
     """
 
-    def __init__(self, df, filename, variable_list='[["RRRPercentdifferenceTP", 0.1], ["RRRdifferenceTP", 0.1], '
-                                                   '["Profit", 0.5], ["RRR", 0.5], ["stoplosssize", 10], '
-                                                   '["Trend", 1], ["commission", 10]]',
-                 cummulative=False, descending=False):
+    def __init__(self, df, filename, variable_list, cummulative=False, descending=False):
         self.bars = df[0]
         self.returns = df[1]
         self.trades = df[2]
@@ -20,8 +16,6 @@ class TradestatsBar(Statistics):
         self.indicators_no = len(df[3])
         self.filename = filename
         self.variable_list = variable_list
-        if type(variable_list) != "List":
-            self.variable_list = ast.literal_eval(variable_list)
         self.cummulative = cummulative
         self.descending = descending
 

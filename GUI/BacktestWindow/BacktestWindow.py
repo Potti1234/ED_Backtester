@@ -197,8 +197,8 @@ class BacktestWindow(QWidget):
         code += "def main():\n"
         code += "    statistics_filename = \"D:\\\\AktienDaten\\\\Statistics\\\\" + self.nameField.text() + "\\\\\" \n"
         code += "    csv_dir = \"D:\\\\AktienDaten\" \n"
-        code += "    symbol_list = " + listToString(self.universeSymbolList.get_selected_rows()) + "\n"
-        code += "    timeframe_list = " + listToString(self.universeTimeframeList.get_selected_rows()) + "\n"
+        code += "    symbol_list = " + listToString(self.universeSymbolList.getSelectedRows()) + "\n"
+        code += "    timeframe_list = " + listToString(self.universeTimeframeList.getSelectedRows()) + "\n"
         code += "    start_date = time.mktime(datetime.strptime(\"{}\", '%Y/%m/%d').timetuple()) \n".format(self.startDateField.text())
         code += "    end_date = time.mktime(datetime.strptime(\"{}\", '%Y/%m/%d').timetuple()) \n\n".format(self.endDateField.text())
         code += "    events = queue.Queue() \n\n"
@@ -220,8 +220,8 @@ class BacktestWindow(QWidget):
         with open("C:/Users/lukas/OneDrive/Dokumente/Pottibot/Backtester/ED_Backtester/Backtester/" + self.nameField.text() + ".py", "w") as file:
             file.write(code)
 
-        saveData = listToString(self.universeSymbolList.get_selected_rows()) + "\n"
-        saveData += listToString(self.universeTimeframeList.get_selected_rows()) + "\n"
+        saveData = listToString(self.universeSymbolList.getSelectedRows()) + "\n"
+        saveData += listToString(self.universeTimeframeList.getSelectedRows()) + "\n"
         saveData += universe + "\n"
         saveData += data + "\n"
         saveData += strategy + "\n"

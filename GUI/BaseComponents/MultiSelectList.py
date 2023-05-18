@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QHeaderView, QVBoxLayout, QCheckBox, QScrollArea, \
-    QPushButton
+    QPushButton, QLineEdit, QHBoxLayout
 from PyQt5.QtCore import Qt
 
 
@@ -10,55 +10,92 @@ class MultiSelectList(QWidget):
 
         # Create a table widget to display the data
         self.table = QTableWidget()
-        self.table.setColumnCount(2)
+        self.table.setColumnCount(1)
+        self.columnCount = 1
         self.table.setRowCount(len(self.data))
-        self.table.setHorizontalHeaderLabels([title, "Select"])
+        self.table.setHorizontalHeaderLabels([title])
+        self.headers = [title]
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
-        # Populate the table with the first 5 timeframes and checkboxes
+        # Populate the table with the items
         for i in range(len(self.data)):
-            item_timeframe = QTableWidgetItem(self.data[i])
-            self.table.setItem(i, 0, item_timeframe)
+            item = QTableWidgetItem(self.data[i])
+            self.table.setItem(i, 0, item)
 
-            checkbox = QCheckBox()
-            checkbox.setChecked(True)
-            self.table.setCellWidget(i, 1, checkbox)
+        self.addCheckboxColumn()
 
-        # Create a scroll area and add the table to it
+        self.layout = QVBoxLayout()
+
+        self.selectLayout = QHBoxLayout()
+        self.addDeselectAllButton()
+        self.addSelectAllButton()
+        self.layout.addLayout(self.selectLayout)
+
+        self.addScrollArea()
+
+        self.setLayout(self.layout)
+
+    def addDeselectAllButton(self):
+        deselectButton = QPushButton('Deselect All')
+        deselectButton.clicked.connect(self.deselectAll)
+        self.selectLayout.addWidget(deselectButton)
+
+    def addSelectAllButton(self):
+        selectButton = QPushButton('Select All')
+        selectButton.clicked.connect(self.selectAll)
+        self.selectLayout.addWidget(selectButton)
+
+    def addScrollArea(self):
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setWidget(self.table)
+        self.layout.addWidget(scroll_area)
 
-        # Add a button to deselect all checkboxes
-        deselect_button = QPushButton('Deselect All')
-        deselect_button.clicked.connect(self.deselect_all)
+    def addCheckboxColumn(self, columnNumber=1, columnName="Select"):
+        self.columnCount += 1
+        self.table.setColumnCount(self.columnCount)
+        self.headers.append(columnName)
+        self.table.setHorizontalHeaderLabels(self.headers)
+        for i in range(len(self.data)):
+            checkbox = QCheckBox()
+            checkbox.setChecked(True)
+            self.table.setCellWidget(i, columnNumber, checkbox)
 
-        # Add the scroll area to the layout
-        layout = QVBoxLayout()
-        layout.addWidget(scroll_area)
-        layout.addWidget(deselect_button)
+    def addTextFieldColumn(self, columnNumber=2, columnName="Text", values=None):
+        self.columnCount += 1
+        self.table.setColumnCount(self.columnCount)
+        self.headers.append(columnName)
+        self.table.setHorizontalHeaderLabels(self.headers)
+        for i in range(len(self.data)):
+            textField = QLineEdit()
+            if values is not None:
+                textField.setText(str(values[i]))
+            self.table.setCellWidget(i, columnNumber, textField)
 
-        self.setLayout(layout)
-
-    def get_selected_rows(self):
-        # Iterate over the rows in the table and get the selected timeframes
-        selected_timeframes = []
+    def getSelectedRows(self, columnNumberCheckBox=1, columnNumberTextField=0):
+        selectedItems = []
         for i in range(self.table.rowCount()):
-            checkbox = self.table.cellWidget(i, 1)
+            checkbox = self.table.cellWidget(i, columnNumberCheckBox)
             if checkbox.isChecked():
-                item_timeframe = self.table.item(i, 0)
-                selected_timeframes.append(item_timeframe.text())
+                item = self.table.cellWidget(i, columnNumberTextField)
+                if columnNumberTextField == 0:
+                    item = self.table.item(i, columnNumberTextField)
+                selectedItems.append(item.text())
 
-        # Print the selected timeframes
-        return selected_timeframes
+        return selectedItems
 
-    def deselect_all(self):
+    def deselectAll(self):
         for i in range(self.table.rowCount()):
             item = self.table.cellWidget(i, 1)
             item.setCheckState(Qt.Unchecked)
 
+    def selectAll(self):
+        for i in range(self.table.rowCount()):
+            item = self.table.cellWidget(i, 1)
+            item.setCheckState(Qt.Checked)
+
     def select(self, newList):
-        self.deselect_all()
+        self.deselectAll()
         for i in range(self.table.rowCount()):
             item = self.table.item(i, 0)
             text = item.text()
