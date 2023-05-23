@@ -77,6 +77,7 @@ class DataWindow(QWidget):
         self.timeframeBox.clear()
         self.timeframeBox.addItems(symbolStats["timeframe"].unique())
         self.refactorWindow.symbolText.setText(self.symbolBox.currentText())
+        self.refactorWindow.initRefactorBox()
 
     def loadSavedDataStats(self):
         self.dataStats = pd.read_csv(self.dataStatsDirectory)

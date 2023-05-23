@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QThread
 import HistoricDataLoader
+from GUI.BaseComponents.TimeframeList import TimeframeList
 
 
 class RefactorWindow(QWidget):
@@ -14,7 +15,7 @@ class RefactorWindow(QWidget):
 
         self.refactorLayout = QHBoxLayout()
         self.refactorButton = QPushButton()
-        self.refactorTimeframeBox = QComboBox()
+        self.refactorTimeframeList = TimeframeList()
 
         self.setWindowTitle("Refactor")
         self.initLayout()
@@ -36,7 +37,7 @@ class RefactorWindow(QWidget):
         self.initRefactorBox()
 
         self.refactorLayout.addWidget(self.refactorButton)
-        self.refactorLayout.addWidget(self.refactorTimeframeBox)
+        self.refactorLayout.addWidget(self.refactorTimeframeList)
 
     def initRefactorButton(self):
         self.refactorButton.setText("refactor")
@@ -50,18 +51,20 @@ class RefactorWindow(QWidget):
         startDate = data["startDate"][data.first_valid_index()]
         endDate = data["endDate"][data.first_valid_index()]
 
-        self.refactorThread = RefactorThread(self.refactorTimeframeBox.currentText(),
-                                             self.dataWindow.symbolBox.currentText(), startDate, endDate)
-        self.refactorThread.finished.connect(self.refactorFinished)
-        self.refactorThread.start()
+        for timeframe in self.refactorTimeframeList.getSelectedRows():
+            self.refactorThread = RefactorThread(timeframe,
+                                                 self.dataWindow.symbolBox.currentText(), startDate, endDate)
+            self.refactorThread.finished.connect(self.refactorFinished)
+            self.refactorThread.start()
 
     def refactorFinished(self):
         self.refactorButton.setEnabled(True)
         del self.refactorThread
 
     def initRefactorBox(self):
-        self.refactorTimeframeBox.setToolTip("RefactorTimeframe")
-        self.refactorTimeframeBox.addItems(self.dataWindow.timeframeList)
+        existingTimeframes = [self.dataWindow.timeframeBox.itemText(i) for i in range(self.dataWindow.timeframeBox.count())]
+        notExistingTimeframes = [timeframe for timeframe in self.dataWindow.timeframeList if timeframe not in existingTimeframes]
+        self.refactorTimeframeList.select(notExistingTimeframes)
 
 
 class RefactorThread(QThread):
