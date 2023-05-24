@@ -9,6 +9,7 @@ import importlib
 from collections import OrderedDict
 from Statistics.Main_Statistics import load_data
 from GUI.StatisticsWindow.VariableList import VariableList
+import Constants
 
 
 class StatisticsWindow(QWidget):
@@ -55,7 +56,7 @@ class StatisticsWindow(QWidget):
 
     def initStrategyLayout(self):
         self.strategyComboBox.setToolTip("Strategy")
-        folders = [f for f in os.listdir("D:\\AktienDaten\\Statistics") if os.path.isdir("D:\\AktienDaten\\Statistics\\" + f)]
+        folders = [f for f in os.listdir(Constants.STATISTICS_DIRECTORY[:-2]) if os.path.isdir(Constants.STATISTICS_DIRECTORY + f)]
         self.strategyComboBox.addItems(folders)
         self.strategyComboBox.currentTextChanged.connect(self.strategyChanged)
 
@@ -97,7 +98,7 @@ class StatisticsWindow(QWidget):
             if param == "df":
                 continue
             elif param == "variable_list":
-                widget = VariableList("D:\\AktienDaten\\Statistics\\" + self.strategyComboBox.currentText() + "\\" +
+                widget = VariableList(Constants.STATISTICS_DIRECTORY + self.strategyComboBox.currentText() + "\\" +
                                       self.symbolList.data[0] + "\\Trades.csv")
             else:
                 widget = QLineEdit()
@@ -141,8 +142,8 @@ class StatisticsWindow(QWidget):
         self.universeLayout.removeWidget(self.symbolList)
         self.universeLayout.removeWidget(self.timeframeList)
 
-        symbols = [f for f in os.listdir("D:\\AktienDaten\\Statistics\\" + self.strategyComboBox.currentText()) if
-                   os.path.isdir("D:\\AktienDaten\\Statistics\\" + self.strategyComboBox.currentText() + "\\" + f)]
+        symbols = [f for f in os.listdir(Constants.STATISTICS_DIRECTORY + self.strategyComboBox.currentText()) if
+                   os.path.isdir(Constants.STATISTICS_DIRECTORY + self.strategyComboBox.currentText() + "\\" + f)]
         self.symbolList = SymbolList(symbols)
 
         self.universeLayout.addWidget(self.symbolList)

@@ -13,10 +13,11 @@ from RiskManagement.RiskManagement import RiskManagement
 from Commission.Commission import Commission
 from Execution.Execution import Execution
 from Strategy.Strategy import Strategy
+import Constants
 
 
 def getAllSubClassesOfAbstractClass(folderName, AbstractClass):
-    file_names = [f for f in os.listdir("C:/Users/lukas/OneDrive/Dokumente/Pottibot/Backtester/ED_Backtester/" +
+    file_names = [f for f in os.listdir(Constants.BACKTESTER_CODE_DIRECTORY +
                                         folderName) if f.endswith(".py")]
 
     # Import each module and get its classes
@@ -142,7 +143,7 @@ class BacktestWindow(QWidget):
         self.nameField.setToolTip("Name")
         self.saveButton.setText("Save")
         self.backtesterComboBox.setToolTip("Backtester To Load")
-        file_names = [f for f in os.listdir("C:/Users/lukas/OneDrive/Dokumente/Pottibot/Backtester/ED_Backtester/Backtester") if f.endswith(".py")]
+        file_names = [f for f in os.listdir(Constants.BACKTESTER_CODE_DIRECTORY[:-2]) if f.endswith(".py")]
         self.backtesterComboBox.addItems(file_names)
         self.loadButton.setText("Load")
         self.startBacktestButton.setText("Start")
@@ -158,7 +159,7 @@ class BacktestWindow(QWidget):
         self.backtestExecuteLayout.addWidget(self.startBacktestButton)
 
     def load(self):
-        with open("C:/Users/lukas/OneDrive/Dokumente/Pottibot/Backtester/ED_Backtester/Backtester/" +
+        with open(Constants.BACKTESTER_CODE_DIRECTORY +
                   self.backtesterComboBox.currentText()[:-3] + ".txt", "r") as file:
             symbols = file.readline()[1:-2].replace("\"", "").split(", ")
             self.universeSymbolList.select(symbols)
@@ -192,11 +193,12 @@ class BacktestWindow(QWidget):
         code += "from Backtester.Event_Driven_Backtester import Event_Driven_Backtester \n"
         code += "import queue \n"
         code += "import time \n"
+        code += "import Constants"
         code += "from datetime import datetime \n\n\n"
 
         code += "def main():\n"
-        code += "    statistics_filename = \"D:\\\\AktienDaten\\\\Statistics\\\\" + self.nameField.text() + "\\\\\" \n"
-        code += "    csv_dir = \"D:\\\\AktienDaten\" \n"
+        code += "    statistics_filename = Constants.STATISTICS_DIRECTORY" + self.nameField.text() + "\\\\\" \n"
+        code += "    csv_dir = Constants.DATA_DIRECTORY \n"
         code += "    symbol_list = " + listToString(self.universeSymbolList.getSelectedRows()) + "\n"
         code += "    timeframe_list = " + listToString(self.universeTimeframeList.getSelectedRows()) + "\n"
         code += "    start_date = time.mktime(datetime.strptime(\"{}\", '%Y/%m/%d').timetuple()) \n".format(self.startDateField.text())
@@ -217,7 +219,7 @@ class BacktestWindow(QWidget):
         code += "if __name__ == \"__main__\": \n"
         code += "    main() \n"
 
-        with open("C:/Users/lukas/OneDrive/Dokumente/Pottibot/Backtester/ED_Backtester/Backtester/" + self.nameField.text() + ".py", "w") as file:
+        with open(Constants.BACKTESTER_CODE_DIRECTORY + self.nameField.text() + ".py", "w") as file:
             file.write(code)
 
         saveData = listToString(self.universeSymbolList.getSelectedRows()) + "\n"
@@ -230,7 +232,7 @@ class BacktestWindow(QWidget):
         saveData += commission + "\n"
         saveData += execution
 
-        with open("C:/Users/lukas/OneDrive/Dokumente/Pottibot/Backtester/ED_Backtester/Backtester/" + self.nameField.text() + ".txt", "w") as file:
+        with open(Constants.BACKTESTER_CODE_DIRECTORY + self.nameField.text() + ".txt", "w") as file:
             file.write(saveData)
 
     def startBacktest(self):

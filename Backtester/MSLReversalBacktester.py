@@ -12,14 +12,15 @@ import Symbol_lists as Symbol_lists
 import queue
 import time
 from datetime import datetime
+import Constants
 
 
 def main():
     indicator_list = ["MajorSwingLevels4H", "TrendFilter4H", "ATR15M"]
 
-    statistics_filename = "D:\\AktienDaten\\Statistics\\MSLReversalReversed6TimesTP\\"
+    statistics_filename = Constants.STATISTICS_DIRECTORY + "MSLReversalReversed6TimesTP\\"
 
-    csv_dir = "D:\\AktienDaten"
+    csv_dir = Constants.DATA_DIRECTORY
     symbol_list = Symbol_lists.return_forexpairs()
     # symbol_list = Symbol_lists.return_5majors()
     # symbol_list = ["EURUSD"]

@@ -1,25 +1,26 @@
-from ED_Backtester.Universe.Dynamic_Universe import DynamicUniverse
-from ED_Backtester.Data.HistoricCSVDataHandler1min import HistoricCSVDataHandler
-from ED_Backtester.Strategy.HD_RSI_Stochastic_EMA import HD_RSI_Stochastic_EMA
-from ED_Backtester.Portfolio.NaivePortfolio import NaivePortfolio
-from ED_Backtester.RiskManagement.FixedMoneyRiskManagement import FixedMoneyRiskManagement
-from ED_Backtester.Commission.IB_Commission import IB_Commission
-from ED_Backtester.Execution.SimulatedExecutionHandler import SimulatedExecutionHandler
+from Universe.DynamicUniverse import DynamicUniverse
+from Data.HistoricCSVDataHandler1min import HistoricCSVDataHandler1min
+from Strategy.HD_RSI_Stochastic_EMA import HD_RSI_Stochastic_EMA
+from Portfolio.NaivePortfolio import NaivePortfolio
+from RiskManagement.FixedMoneyRiskManagement import FixedMoneyRiskManagement
+from Commission.IB_Commission import IB_Commission
+from Execution.SimulatedExecutionHandler import SimulatedExecutionHandler
 
-from ED_Backtester.Backtester.Event_Driven_Backtester import Event_Driven_Backtester
+from Backtester.Event_Driven_Backtester import Event_Driven_Backtester
 
-import ED_Backtester.Symbol_lists as Symbol_lists
+import Symbol_lists as Symbol_lists
 import queue
 import time
 from datetime import datetime
+import Constants
 
 
 def main():
     indicator_list = ["Hidden_Divergence", "Stochstic", "EMA"]
 
-    statistics_filename = "D:\\AktienDaten\\Statistics\\HDRSIStochasticEMA\\"
+    statistics_filename = Constants.STATISTICS_DIRECTORY + "HDRSIStochasticEMA\\"
 
-    csv_dir = "D:\\AktienDaten"
+    csv_dir = Constants.DATA_DIRECTORY
     symbol_list = Symbol_lists.return_forexpairs()
 
     timeframe_list = ["30minute"]
@@ -32,7 +33,7 @@ def main():
     events = queue.Queue()
 
     universe = DynamicUniverse(symbol_list)
-    bars = HistoricCSVDataHandler(events, csv_dir, universe, timeframe_list, start_date, end_date)
+    bars = HistoricCSVDataHandler1min(events, csv_dir, universe, timeframe_list, start_date, end_date)
     strategy = HD_RSI_Stochastic_EMA(events, bars)
     risk = FixedMoneyRiskManagement(bars, 1000)
     port = NaivePortfolio(bars, events, start_date, risk)

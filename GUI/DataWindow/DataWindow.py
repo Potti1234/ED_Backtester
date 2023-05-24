@@ -3,13 +3,14 @@ from os import listdir
 from os.path import isfile, join
 import pandas as pd
 from GUI.DataWindow.RefactorWindow import RefactorWindow
+import Constants
 
 
 class DataWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.dataDirectory = "D:\\AktienDaten"
-        self.dataStatsDirectory = self.dataDirectory + "\\SavedDataStats.csv"
+        self.dataDirectory = Constants.DATA_DIRECTORY
+        self.dataStatsDirectory = Constants.DATA_DIRECTORY + "SavedDataStats.csv"
         self.timeframeList = ["1minute", "5minute", "15minute", "30minute", "1hour", "4hour"]#, "1day"]
         self.symbolList = []
         self.dataStats = pd.DataFrame
@@ -90,7 +91,7 @@ class DataWindow(QWidget):
         endDateData = []
 
         for timeframe in self.timeframeList:
-            path = self.dataDirectory + "\\" + timeframe
+            path = self.dataDirectory + timeframe
             # Get all files in timeframe folder
             files = [f for f in listdir(path) if isfile(join(path, f))]
             for file in files:

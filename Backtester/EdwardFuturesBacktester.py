@@ -11,14 +11,15 @@ from Backtester.Event_Driven_Backtester import Event_Driven_Backtester
 import queue
 import time
 from datetime import datetime
+import Constants
 
 
 def main():
     indicator_list = []
 
-    statistics_filename = "D:\\AktienDaten\\Statistics\\EdwardFutures\\"
+    statistics_filename = Constants.STATISTICS_DIRECTORY + "EdwardFutures\\"
 
-    csv_dir = "D:\\AktienDaten"
+    csv_dir = Constants.DATA_DIRECTORY
     symbol_list = ["ES"]
 
     timeframe_list = ["1minute", "5minutes"]

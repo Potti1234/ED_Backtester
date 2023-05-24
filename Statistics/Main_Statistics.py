@@ -10,6 +10,7 @@ from Statistics.Tearsheet_quantstats import Tearsheet_quantstats
 
 import Statistics.Indicator_lists as Indicator_lists
 import Symbol_lists as Symbol_lists
+import Constants
 
 
 def reformat_data(rf_data, reformat_data_sec, base_data_sec):
@@ -54,14 +55,14 @@ def main():
 
 
 def load_data(strategy_name, symbol, timeframe, indicator_list):
-    statistics_filename = "D:\\AktienDaten\\Statistics\\{}\\{}\\".format(strategy_name, symbol)
-    statistics_main_filename = "D:\\AktienDaten\\Statistics\\{}\\".format(strategy_name)
+    statistics_filename = Constants.STATISTICS_DIRECTORY + "{}\\{}\\".format(strategy_name, symbol)
+    statistics_main_filename = Constants.STATISTICS_DIRECTORY + "{}\\".format(strategy_name)
 
     df = []
     try:
-        df.append([pd.read_csv("D:\\AktienDaten\\{}\\{}.csv".format(timeframe, symbol)), timeframe])
+        df.append([pd.read_csv(Constants.DATA_DIRECTORY + "{}\\{}.csv".format(timeframe, symbol)), timeframe])
     except FileNotFoundError:
-        df_base = pd.read_csv("D:\\AktienDaten\\1minute\\{}.csv".format(symbol))
+        df_base = pd.read_csv(Constants.DATA_DIRECTORY + "1minute\\{}.csv".format(symbol))
         df_base["candle_opentime"] = df_base["datetime"] - (df_base["datetime"] % get_timeframe_in_sec(timeframe))
         # Transform Data into lowest timeframe format
         dfgb = df_base.groupby("candle_opentime")
@@ -114,7 +115,7 @@ def get_timeframe_in_sec(timeframe):
 
 def plot_entry_chart(strategy_name, symbol, timeframe_list, drop_candles, title, start_date, end_date, indicator_list,
                      reformat_data_sec=0, plot_slpt=False, trades=None):
-    statistics_filename = "D:\\AktienDaten\\Statistics\\{}\\{}\\".format(strategy_name, symbol)
+    statistics_filename = Constants.STATISTICS_DIRECTORY + "{}\\{}\\".format(strategy_name, symbol)
 
     full_df = []
 
@@ -159,7 +160,7 @@ def plot_entry_chart(strategy_name, symbol, timeframe_list, drop_candles, title,
 
 
 def plot_tearsheet(strategy_name, title, symbol=None):
-    statistics_filename = "D:\\AktienDaten\\Statistics\\{}\\".format(strategy_name)
+    statistics_filename = Constants.STATISTICS_DIRECTORY + "{}\\".format(strategy_name)
     if symbol is not None:
         statistics_filename += symbol + "\\"
 
@@ -171,7 +172,7 @@ def plot_tearsheet(strategy_name, title, symbol=None):
 
 def plot_single_trades(strategy_name, symbol, timeframe, drop_candles, indicator_list, reformat_data_sec=0,
                        prev_bars=40, after_bars=10):
-    statistics_filename = "D:\\AktienDaten\\Statistics\\{}\\{}\\".format(strategy_name, symbol)
+    statistics_filename = Constants.STATISTICS_DIRECTORY + "{}\\{}\\".format(strategy_name, symbol)
 
     trades = pd.read_csv(statistics_filename + "Trades.csv")
     open_trades = trades[trades["OC"] == "Open"]
@@ -254,7 +255,7 @@ def plot_tradestats_bar(dftrades, filename, variable_list, cummulative=False, de
         ax.bar(grp[variables[0]][grp.first_valid_index()], loss[param], width=-variable_list[0][1] / 2, color="red",
                align="edge")
 
-    plt.savefig("D:\\AktienDaten\\Statistics\\{} WinnerLoser.png".format(filename))
+    plt.savefig(Constants.STATISTICS_DIRECTORY + "{} WinnerLoser.png".format(filename))
 
     fig, ax = plt.subplots(figsize=(10, 4))
     for key, grp in dfgb:
@@ -269,7 +270,7 @@ def plot_tradestats_bar(dftrades, filename, variable_list, cummulative=False, de
             cumprofit[param] += profit[param]
             profit[param] = cumprofit[param]
         ax.bar(grp[variables[0]][grp.first_valid_index()], profit[param], width=variable_list[0][1], color="green")
-    plt.savefig("D:\\AktienDaten\\Statistics\\{} Profit.png".format(filename))
+    plt.savefig(Constants.STATISTICS_DIRECTORY + "{} Profit.png".format(filename))
 
     for key, grp in dfgb:
         variable_value = ""
@@ -279,7 +280,7 @@ def plot_tradestats_bar(dftrades, filename, variable_list, cummulative=False, de
                 variable_value += str(i)
             param = variable_value
 
-        with open("D:\\AktienDaten\\Statistics\\{} {}.txt".format(filename, variable_name), 'a') as f:
+        with open(Constants.STATISTICS_DIRECTORY + "{} {}.txt".format(filename, variable_name), 'a') as f:
             f.write('{} {}W {}L {}% {}Profit\n'.format(param, win[param], loss[param],
                                                        round(win[param] / (win[param] + loss[param]), 2),
                                                        round(profit[param]), 2))
@@ -290,7 +291,7 @@ def plot_tradestats_scatter(dftrades, filename, variable):
     fig = plt.figure()
     colors = {'Win': 'green', 'Loss': 'red'}
     plt.scatter(dftrades.index, dftrades[variable], c=dftrades["WL"].map(colors))
-    plt.savefig("D:\\AktienDaten\\Statistics\\{} Scatter.png".format(filename))
+    plt.savefig(Constants.STATISTICS_DIRECTORY + "{} Scatter.png".format(filename))
 
 
 def save_stats(trades, symbol, statistics_filename):
@@ -311,7 +312,7 @@ def plot_trades_analysis(strategy_name, symbol_list, timeframe, indicator_list, 
                          sl_optimization=True):
     alltrades = pd.DataFrame()
     # Give Name of value to plot on x axis and digits to round plot winrate trades profit
-    statistics_filename = "D:\\AktienDaten\\Statistics\\{}\\".format(strategy_name)
+    statistics_filename = Constants.STATISTICS_DIRECTORY + "{}\\".format(strategy_name)
     variable_name = ""
     for variable in variable_list:
         variable_name += str(variable[0])

@@ -1,6 +1,7 @@
 from Statistics.Main_Statistics import round_nearest
 from Statistics.Statistics import Statistics
 import matplotlib.pyplot as plt
+import Constants
 
 
 class TradestatsBar(Statistics):
@@ -76,7 +77,7 @@ class TradestatsBar(Statistics):
             ax.bar(grp[variables[0]][grp.first_valid_index()], loss[param], width=-self.variable_list[0][1] / 2, color="red",
                    align="edge")
 
-        plt.savefig("D:\\AktienDaten\\Statistics\\{} WinnerLoser.png".format(filename))
+        plt.savefig(Constants.STATISTICS_DIRECTORY + "{} WinnerLoser.png".format(filename))
 
         fig, ax = plt.subplots(figsize=(10, 4))
         for key, grp in dfgb:
@@ -91,7 +92,7 @@ class TradestatsBar(Statistics):
                 cumprofit[param] += profit[param]
                 profit[param] = cumprofit[param]
             ax.bar(grp[variables[0]][grp.first_valid_index()], profit[param], width=self.variable_list[0][1], color="green")
-        plt.savefig("D:\\AktienDaten\\Statistics\\{} Profit.png".format(filename))
+        plt.savefig(Constants.STATISTICS_DIRECTORY + "{} Profit.png".format(filename))
 
         for key, grp in dfgb:
             variable_value = ""
@@ -101,7 +102,7 @@ class TradestatsBar(Statistics):
                     variable_value += str(i)
                 param = variable_value
 
-            with open("D:\\AktienDaten\\Statistics\\{} {}.txt".format(filename, variable_name), 'a') as f:
+            with open(Constants.STATISTICS_DIRECTORY + "{} {}.txt".format(filename, variable_name), 'a') as f:
                 f.write('{} {}W {}L {}% {}Profit\n'.format(param, win[param], loss[param],
                                                            round(win[param] / (win[param] + loss[param]), 2),
                                                            round(profit[param]), 2))

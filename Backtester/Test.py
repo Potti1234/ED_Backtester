@@ -9,11 +9,12 @@ from Backtester.Event_Driven_Backtester import Event_Driven_Backtester
 import queue 
 import time 
 from datetime import datetime 
+import Constants
 
 
 def main():
-    statistics_filename = "D:\\AktienDaten\\Statistics\\Test\\" 
-    csv_dir = "D:\\AktienDaten" 
+    statistics_filename = Constants.STATISTICS_DIRECTORY + "Test\\"
+    csv_dir = Constants.DATA_DIRECTORY
     symbol_list = ["ES", "EURUSD"]
     timeframe_list = ["1 minute", "5 minutes", "15 minutes", "30 minutes", "1 hour", "4 hours", "1 day"]
     start_date = time.mktime(datetime.strptime("2000-01-01", '%Y/%m/%d').timetuple()) 

@@ -12,14 +12,14 @@ import Symbol_lists as Symbol_lists
 import queue
 import time
 from datetime import datetime
+import Constants
 
 
 def main():
     indicator_list = ["MACD", "EMA", "MajorSwingLevels"]
 
-    statistics_filename = "D:\\AktienDaten\\Statistics\\Test\\"
+    statistics_filename = Constants.STATISTICS_DIRECTORY + "Test\\"
 
-    csv_dir = "D:\\AktienDaten"
     symbol_list = Symbol_lists.return_forexpairs()
 
     timeframe_list = ["15minute"]
@@ -32,7 +32,7 @@ def main():
     events = queue.Queue()
 
     universe = DynamicUniverse(symbol_list)
-    bars = HistoricCSVDataHandler1min(events, csv_dir, universe, timeframe_list, start_date, end_date)
+    bars = HistoricCSVDataHandler1min(events, Constants.DATA_DIRECTORY, universe, timeframe_list, start_date, end_date)
     strategy = MACDStrategy(events, bars)
     risk = FixedMoneyRiskManagement(bars, 1000)
     port = NaivePortfolio(bars, events, start_date, risk)

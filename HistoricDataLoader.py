@@ -5,6 +5,7 @@ import json
 from datetime import datetime
 import time
 from Symbol_lists import return_category
+import Constants
 
 import pyhoo
 import finnhub
@@ -220,13 +221,13 @@ def get_date_n_days_ago(n, date_to_start=Current_Datetime):
 
 
 def save_all_tickers(multiplier, period):
-    df = pd.read_excel("D:/AktienDaten/tickers.xlsx")
+    df = pd.read_excel(Constants.DATA_DIRECTORY + "tickers.xlsx")
     tickers = df["Name"].values
     for ticker in tickers:
         print(ticker)
         df = get_historical_data_polygon(ticker, multiplier, period, get_date_n_days_ago(730), get_date_n_days_ago(0),
                                          50000, 'pyEAjCqpC3onqokcA6Y4AVj1zx__c6zE_AKY8q')
-        df.to_csv("D:/AktienDaten/{}{}/{}.csv".format(multiplier, period, ticker), index=False)
+        df.to_csv(Constants.DATA_DIRECTORY + "{}{}/{}.csv".format(multiplier, period, ticker), index=False)
         time.sleep(13)
 
 
@@ -244,7 +245,7 @@ def save_1min_ticker(ticker, period=25):
             time.sleep(12)
             continue
         try:
-            dfold = pd.read_csv("D:/AktienDaten/{}{}/{}.csv".format(1, "minute", modified_ticker))
+            dfold = pd.read_csv(Constants.DATA_DIRECTORY + "{}{}\\{}.csv".format(1, "minute", modified_ticker))
         except FileNotFoundError:
             dfold = pd.DataFrame(columns=["datetime", "open", "low", "high", "close", "volume"])
 
@@ -253,7 +254,7 @@ def save_1min_ticker(ticker, period=25):
         dfold = dfold.sort_values("datetime")
         dfold = dfold[["datetime", "open", "low", "high", "close", "volume"]].apply(pd.to_numeric)
         dfold = dfold.set_index("datetime")
-        dfold.to_csv("D:/AktienDaten/{}{}/{}.csv".format(1, "minute", modified_ticker))
+        dfold.to_csv(Constants.DATA_DIRECTORY + "{}{}/{}.csv".format(1, "minute", modified_ticker))
         time.sleep(12)
 
     
@@ -261,7 +262,7 @@ def reformat_data(timeframe, ticker, append, start_dt, end_dt):
     # Get timeframe in seconds
     timeframe_in_sec = get_timeframe_in_sec(timeframe)
 
-    df = pd.read_csv("D:/AktienDaten/1minute/{}.csv".format(ticker))
+    df = pd.read_csv(Constants.DATA_DIRECTORY + "1minute\\{}.csv".format(ticker))
     df = df[df["datetime"] >= start_dt]
     df = df[df["datetime"] <= end_dt]
     df[["datetime", "open", "low", "high", "close", "volume"]] = df[
@@ -285,16 +286,16 @@ def reformat_data(timeframe, ticker, append, start_dt, end_dt):
     reformated_data["volume"] = df.groupby("CandleOpentime")["volume"].cumsum()
 
     if append is True:
-        df = pd.read_csv("D:/AktienDaten/{}/{}.csv".format(timeframe, ticker))
+        df = pd.read_csv(Constants.DATA_DIRECTORY + "{}\\{}.csv".format(timeframe, ticker))
         df = df.append(reformated_data, ignore_index=True)
         df = df[~df.duplicated(subset="datetime")]
         df = df.sort_values("datetime")
         df = df[["datetime", "open", "low", "high", "close", "volume"]].apply(pd.to_numeric)
         df = df.set_index("datetime")
-        df.to_csv("D:/AktienDaten/{}/{}.csv".format(timeframe, ticker))
+        df.to_csv(Constants.DATA_DIRECTORY + "{}\\{}.csv".format(timeframe, ticker))
         print(df)
     else:
-        reformated_data.to_csv("D:/AktienDaten/{}/{}.csv".format(timeframe, ticker))
+        reformated_data.to_csv(Constants.DATA_DIRECTORY + "{}\\{}.csv".format(timeframe, ticker))
         print(reformated_data)
 
 
@@ -358,20 +359,20 @@ def combine_year(year, start_month, end_month, ticker, folder="Forex Histdata"):
     df = pd.DataFrame()
     for i in range(start_month, end_month+1):
         month = str(i).zfill(2)
-        file = "D:\\AktienDaten\\{}\\HISTDATA_COM_ASCII_{}_M1{}{}\\DAT_ASCII_{}_M1_{}{}.csv".format(
+        file = Constants.DATA_DIRECTORY + "{}\\HISTDATA_COM_ASCII_{}_M1{}{}\\DAT_ASCII_{}_M1_{}{}.csv".format(
             folder, ticker, year, month, ticker, year, month)
         try:
             df_month = pd.read_csv(file, header=None)
             df = df.append(df_month, ignore_index=True)
         except FileNotFoundError:
             continue
-    save_file = "D:\\AktienDaten\\{}\\DAT_ASCII_{}_M1_{}.csv".format(folder, ticker, year)
+    save_file = Constants.DATA_DIRECTORY + "{}\\DAT_ASCII_{}_M1_{}.csv".format(folder, ticker, year)
     df.to_csv(save_file, index=False, header=False)
     ninjatrader_to_csv(save_file, save_file)
 
 
-def append_year(year, ticker, folder="Forex Histdata", filename="D:\\AktienDaten\\1minute\\"):
-    file = "D:\\AktienDaten\\{}\\DAT_ASCII_{}_M1_{}.csv".format(folder, ticker, year)
+def append_year(year, ticker, folder="Forex Histdata", filename=Constants.DATA_DIRECTORY + "1minute\\"):
+    file = Constants.DATA_DIRECTORY + "{}\\DAT_ASCII_{}_M1_{}.csv".format(folder, ticker, year)
     save_file = filename + ticker + ".csv"
     dfnew = pd.read_csv(file)
     df = pd.read_csv(save_file)
@@ -416,12 +417,12 @@ end_date = "2021/01/01 00:00:00"
 end_date = time.mktime(datetime.strptime(end_date, '%Y/%m/%d %H:%M:%S').timetuple())
 reformat_data(5, "minute", "ES", 300, False, start_date, end_date)
 
-df = pd.read_hdf("D:/AktienDaten/5minute/ES.h5")
+df = pd.read_hdf(Constants.DATA_DIRECTORY + "5minute\\ES.h5")
 df["datetime"] = pd.to_datetime(df["datetime"], unit="s")
 print(df)
 """
 #save_1min_ticker("SPY")
-#dfold = pd.read_hdf("D:/AktienDaten/{}{}/{}.h5".format(1, "minute", "ES"))
+#dfold = pd.read_hdf(Constants.DATA_DIRECTORY + "{}{}\\{}.h5".format(1, "minute", "ES"))
 #print(dfold)
 
 """
@@ -429,20 +430,20 @@ ticker = "AMZN"
 Multiplier = 7
 Period = "day"
 df = get_historical_data_polygon(ticker, Multiplier, Period, get_date_n_days_ago(365*5), get_date_n_days_ago(0), 'pyEAjCqpC3onqokcA6Y4AVj1zx__c6zE_AKY8q')
-#df.to_hdf("D:/AktienDaten/{}{}/{}.h5".format(Multiplier,Period,ticker), key="df")
-df.to_csv("D:/AktienDaten/{}{}/{}.csv".format(Multiplier,Period,ticker))
+#df.to_hdf(Constants.DATA_DIRECTORY + "{}{}\\{}.h5".format(Multiplier,Period,ticker), key="df")
+df.to_csv(Constants.DATA_DIRECTORY + "{}{}\\{}.csv".format(Multiplier,Period,ticker))
 print(df)
 """
-#df = pd.read_csv("D:/AktienDaten/7day/AMZN.csv")
+#df = pd.read_csv(Constants.DATA_DIRECTORY + "7day\\AMZN.csv")
 #df["datetime"] = pd.to_datetime(df["datetime"], unit="s")
 
 #print(df)
 #save_all_tickers(1,"day")
-#Ninjatrader_to_hdf("D:\\AktienDaten\\ES Histdata\\DAT_NT_SPXUSD_M1_2020.csv", 'D:\\AktienDaten\\1minute\\Test.h5')
+#Ninjatrader_to_hdf(Constants.DATA_DIRECTORY + "ES Histdata\\DAT_NT_SPXUSD_M1_2020.csv", 'D:\\AktienDaten\\1minute\\Test.h5')
 #reformat_data(5, "minute", "ES", 300)
 
-#hdf_to_Ninjatrader('D:\\AktienDaten\\1minute\\ES.h5', 'D:\\AktienDaten\\1minute\\ES 12-20.Last.txt')
-#Ninjatrader_to_hdf('D:\\AktienDaten\\1minute\\ES 12-20.Last.txt', 'D:\\AktienDaten\\1minute\\ES.h5')
+#hdf_to_Ninjatrader(Constants.DATA_DIRECTORY + '1minute\\ES.h5', 'D:\\AktienDaten\\1minute\\ES 12-20.Last.txt')
+#Ninjatrader_to_hdf(Constants.DATA_DIRECTORY + '1minute\\ES 12-20.Last.txt', 'D:\\AktienDaten\\1minute\\ES.h5')
 
 """
 tickers = ['AMZN']
@@ -451,24 +452,24 @@ end = '2021-04-22'
 
 stock_prices = pyhoo.get('chart', tickers, start=start, end=end, granularity="1d")
 print(stock_prices)
-stock_prices.to_csv("D:/AktienDaten/1day/AMZN.csv")
+stock_prices.to_csv(Constants.DATA_DIRECTORY + "1day\\AMZN.csv")
 
-df = pd.read_csv("D:/AktienDaten/1day/AMZN.csv")
+df = pd.read_csv(Constants.DATA_DIRECTORY + "1day\\AMZN.csv")
 df = df.round(2)
 print(df)
-df.to_csv("D:/AktienDaten/1day/AMZN.csv")
+df.to_csv(Constants.DATA_DIRECTORY + "1day\\AMZN.csv")
 """
 """
 for stock in Majors:
-    filename = "D:\\AktienDaten\\Histdata\\HISTDATA_COM_NT_{}_M12019\\DAT_NT_{}_M1_2019.csv".format(stock, stock)
+    filename = Constants.DATA_DIRECTORY + "Histdata\\HISTDATA_COM_NT_{}_M12019\\DAT_NT_{}_M1_2019.csv".format(stock, stock)
     df = ninjatrader_to_csv(filename, filename)
-    filename = "D:\\AktienDaten\\Histdata\\HISTDATA_COM_NT_{}_M12020\\DAT_NT_{}_M1_2020.csv".format(stock, stock)
+    filename = Constants.DATA_DIRECTORY + "Histdata\\HISTDATA_COM_NT_{}_M12020\\DAT_NT_{}_M1_2020.csv".format(stock, stock)
     df = df.append(ninjatrader_to_csv(filename, filename), ignore_index=True)
 
     for i in range(1, 8, 1):
-        filename = "D:\\AktienDaten\\Histdata\\HISTDATA_COM_NT_{}_M120210{}\\DAT_NT_{}_M1_20210{}.csv".format(stock, i, stock, i)
+        filename = Constants.DATA_DIRECTORY + "Histdata\\HISTDATA_COM_NT_{}_M120210{}\\DAT_NT_{}_M1_20210{}.csv".format(stock, i, stock, i)
         df = df.append(ninjatrader_to_csv(filename, filename), ignore_index=True)
-    df.to_csv("D:\\AktienDaten\\Histdata\\{}.csv".format(stock))
+    df.to_csv(Constants.DATA_DIRECTORY + "Histdata\\{}.csv".format(stock))
     print(df)
 """
 
@@ -480,7 +481,7 @@ if __name__ == "__main__":
               "GBPUSD", "NZDCAD", "NZDCHF", "NZDJPY", "NZDUSD", "USDCAD", "USDCHF", "USDJPY"]
 
     # save_1min_ticker("AUDCAD", 10)
-    # ninjatrader_to_csv("D:\\AktienDaten\\1minute\\EURUSDTest.csv", "D:\\AktienDaten\\1minute\\EURUSDTest.csv")
+    # ninjatrader_to_csv(Constants.DATA_DIRECTORY + "1minute\\EURUSDTest.csv", "D:\\AktienDaten\\1minute\\EURUSDTest.csv")
     start_date = "2021/08/01 00:00:00"
     start_date = time.mktime(datetime.strptime(start_date, '%Y/%m/%d %H:%M:%S').timetuple())
     end_date = "2022/08/02 00:00:00"

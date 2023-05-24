@@ -12,14 +12,15 @@ import Symbol_lists as Symbol_lists
 import queue
 import time
 from datetime import datetime
+import Constants
 
 
 def main():
     indicator_list = ["MajorSwingLevel1H", "MajorSwingLevel4H", "ATR", "Pinbar", "EngulfingCandle", "TrendFilter1H", "TrendFilter4H"]
 
-    statistics_filename = "D:\\AktienDaten\\Statistics\\Test\\"
+    statistics_filename = Constants.STATISTICS_DIRECTORY + "Test\\"
 
-    csv_dir = "D:\\AktienDaten"
+    csv_dir = Constants.DATA_DIRECTORY
     symbol_list = Symbol_lists.return_5majors()
 
     timeframe_list = ["30minute", "4hour"]
