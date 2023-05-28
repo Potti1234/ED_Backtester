@@ -56,7 +56,7 @@ class StatisticsWindow(QWidget):
 
     def initStrategyLayout(self):
         self.strategyComboBox.setToolTip("Strategy")
-        folders = [f for f in os.listdir(Constants.STATISTICS_DIRECTORY[:-2]) if os.path.isdir(Constants.STATISTICS_DIRECTORY + f)]
+        folders = [f for f in os.listdir(Constants.STATISTICS_DIRECTORY[:-1]) if os.path.isdir(Constants.STATISTICS_DIRECTORY + f)]
         self.strategyComboBox.addItems(folders)
         self.strategyComboBox.currentTextChanged.connect(self.strategyChanged)
 

@@ -143,7 +143,7 @@ class BacktestWindow(QWidget):
         self.nameField.setToolTip("Name")
         self.saveButton.setText("Save")
         self.backtesterComboBox.setToolTip("Backtester To Load")
-        file_names = [f for f in os.listdir(Constants.BACKTESTER_CODE_DIRECTORY[:-2]) if f.endswith(".py")]
+        file_names = [f for f in os.listdir(Constants.BACKTESTER_CODE_DIRECTORY[:-1]) if f.endswith(".py")]
         self.backtesterComboBox.addItems(file_names)
         self.loadButton.setText("Load")
         self.startBacktestButton.setText("Start")

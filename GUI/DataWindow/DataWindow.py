@@ -1,9 +1,13 @@
+from datetime import datetime
 from PyQt5.QtWidgets import *
 from os import listdir
 from os.path import isfile, join
 import pandas as pd
 from GUI.DataWindow.RefactorWindow import RefactorWindow
 import Constants
+import Statistics.Plotting_Bokeh as Plot
+from bokeh.plotting import figure, show, output_file
+from bokeh.layouts import column
 
 
 class DataWindow(QWidget):
@@ -22,6 +26,9 @@ class DataWindow(QWidget):
         self.symbolBox = QComboBox()
         self.timeframeBox = QComboBox()
 
+        self.statisticsLayout = QHBoxLayout()
+        self.plotChartButton = QPushButton()
+
         self.refactorWindow = RefactorWindow(self)
         self.refactorButton = QPushButton()
 
@@ -32,9 +39,11 @@ class DataWindow(QWidget):
 
     def initLayout(self):
         self.initSymbolLayout()
+        self.initStatisticsLayout()
         self.initRefactorButton()
         self.initRefreshDataButton()
         self.layout.addLayout(self.symbolLayout)
+        self.layout.addLayout(self.statisticsLayout)
         self.layout.addWidget(self.refactorButton)
         self.layout.addWidget(self.refreshDataButton)
         self.setLayout(self.layout)
@@ -80,6 +89,12 @@ class DataWindow(QWidget):
         self.refactorWindow.symbolText.setText(self.symbolBox.currentText())
         self.refactorWindow.initRefactorBox()
 
+    def initStatisticsLayout(self):
+        self.plotChartButton.setText("Plot Chart")
+        self.plotChartButton.clicked.connect(self.plotPrice)
+
+        self.statisticsLayout.addWidget(self.plotChartButton)
+
     def loadSavedDataStats(self):
         self.dataStats = pd.read_csv(self.dataStatsDirectory)
         self.symbolList = self.dataStats["symbol"].unique()
@@ -106,3 +121,25 @@ class DataWindow(QWidget):
         dataStats = pd.DataFrame({"timeframe": timeframeData, "symbol": symbolData, "startDate": startDateData,
                                   "endDate": endDateData})
         dataStats.to_csv(self.dataStatsDirectory)
+
+    def plotPrice(self):
+        def ts_to_dt(timestamp):
+            try:
+                return datetime.fromtimestamp(int(timestamp))
+            except ValueError or TypeError:
+                return timestamp
+
+        df = pd.read_csv(Constants.DATA_DIRECTORY + self.timeframeBox.currentText() + "\\" +
+                         self.symbolBox.currentText() + ".csv")
+
+        df["datetime"] = df["datetime"].apply(ts_to_dt)
+
+        tools = "pan,wheel_zoom,ywheel_zoom,xwheel_zoom,box_zoom,reset,save"
+
+        figures = [figure(x_axis_type="datetime", tools=tools, plot_width=1500, plot_height=500, title="Chart")]
+
+        figures[0] = Plot.add_price(figures[0], df)
+
+        output_file(Constants.DATA_DIRECTORY + "PriceChart.html", title="PriceChart.html")
+
+        show(column(*figures))
