@@ -28,6 +28,8 @@ class DataWindow(QWidget):
 
         self.statisticsLayout = QHBoxLayout()
         self.plotChartButton = QPushButton()
+        self.startDateTextField = QLineEdit()
+        self.endDateTextField = QLineEdit()
 
         self.refactorWindow = RefactorWindow(self)
         self.refactorButton = QPushButton()
@@ -89,11 +91,21 @@ class DataWindow(QWidget):
         self.refactorWindow.symbolText.setText(self.symbolBox.currentText())
         self.refactorWindow.initRefactorBox()
 
+        self.startDateTextField.setText(str(ts_to_dt(symbolStats["startDate"].min())))
+        self.endDateTextField.setText(str(ts_to_dt(symbolStats["endDate"].max())))
+
     def initStatisticsLayout(self):
         self.plotChartButton.setText("Plot Chart")
         self.plotChartButton.clicked.connect(self.plotPrice)
 
+        self.startDateTextField.setToolTip("StartDate")
+        self.endDateTextField.setToolTip("EndDate")
+        self.startDateTextField.setEnabled(False)
+        self.endDateTextField.setEnabled(False)
+
         self.statisticsLayout.addWidget(self.plotChartButton)
+        self.statisticsLayout.addWidget(self.startDateTextField)
+        self.statisticsLayout.addWidget(self.endDateTextField)
 
     def loadSavedDataStats(self):
         self.dataStats = pd.read_csv(self.dataStatsDirectory)
@@ -123,12 +135,6 @@ class DataWindow(QWidget):
         dataStats.to_csv(self.dataStatsDirectory)
 
     def plotPrice(self):
-        def ts_to_dt(timestamp):
-            try:
-                return datetime.fromtimestamp(int(timestamp))
-            except ValueError or TypeError:
-                return timestamp
-
         df = pd.read_csv(Constants.DATA_DIRECTORY + self.timeframeBox.currentText() + "\\" +
                          self.symbolBox.currentText() + ".csv")
 
@@ -143,3 +149,10 @@ class DataWindow(QWidget):
         output_file(Constants.DATA_DIRECTORY + "PriceChart.html", title="PriceChart.html")
 
         show(column(*figures))
+
+
+def ts_to_dt(timestamp):
+    try:
+        return datetime.fromtimestamp(int(timestamp))
+    except ValueError or TypeError:
+        return timestamp
